@@ -1,0 +1,12 @@
+requirement,result,target,status
+R1,DS-014 40-pin connector on a 0.3 m pigtail; signals from the flight controller and bus; licence and pinout to confirm,DS-014 signals and power present,Met on paper (licence and pinout to confirm)
+R2,"About 52 s with gloves, no tools; pin state shown by a red band","60 s, no tools, pin visible",Met on paper (estimate)
+R3,"Vertical 147 N: lips 99x, screws 69x, side beam 10.8x; fore-aft 221 N on one pin 36x","3 x and 1.5 x at 2 g, rated 5 kg",Met on paper
+R4,100 W needs at most 5.6 A (6S at 18 V); switch limit 8 A; DS-014 pin rating to confirm,100 W continuous at bus voltage,Met on paper (pin rating to confirm)
+R5,Hottest part about 75 degC at 45 degC ambient; cold boot at -20 degC within the -40 degC rating,-20 to +45 degC,Met on paper
+R6,Sensors in range at 54 kPa; failsafe set per altitude band (Table 6); control margin is a frame property,"Stable control and failsafes at 5,000 m density",Met on paper (core); flight check needs a frame
+R7,"Model published: 47% (cold packs) and 70% (ColdCell) of sea-level hover time at 5,000 m and -20 degC",Within 15 % of measured,Model ready; accuracy shown only at TRL 4
+R8,"One core, one interface (Table 7); Lift needs 11 of 16 outputs and Range 10 of 16; parameter sets only",Same core in Lift and Range,Met by design
+R9,"1.27 kg estimated (two locking pins, aluminium plate and rails, power leads inside the core)",See KWC-REQ-001 R9,Not met
+R10,"Released PX4 (v1.15 or later), parameters and stock modules only; ColdCell reports over DroneCAN","Released PX4, no source change",Met by design
+R11,"USD 3,940.60 including ground station and spares","Value-engineering target USD 5,000","Under the target by USD 1,059.40"

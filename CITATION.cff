@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use or build on this design, please cite it as below."
+type: software
+title: "Kitewright Core"
+abstract: "The shared core of the Kitewright open drone family: open autopilot, ColdCell power bus and one standard payload mount."
+authors:
+  - given-names: Amish
+    family-names: Chadha
+    affiliation: Design Molecule
+    orcid: "https://orcid.org/0009-0000-8079-7141"
+repository-code: "https://github.com/BoujeeEnjinia1701/kitewright-core"
+url: "https://designmolecule.com"
+license: CERN-OHL-S-2.0
+keywords:
+  - open-hardware
+  - kitewright
+  - drone
+  - avionics
+  - px4
+  - pixhawk
+  - payload-interface
+  - high-altitude
+  - search-and-rescue
