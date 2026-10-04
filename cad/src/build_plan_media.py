@@ -18,20 +18,24 @@ sys.path[:0] = [str(ROOT / ".kit"), str(ROOT / "cad" / "src")]
 import build_views as bv  # noqa: E402
 from build_views import Part  # noqa: E402
 from build123d import Cone, Pos  # noqa: E402
-from model import PARAMS as P, build_components, derived, deck_context, harness_context, box, cyl, rail_screw_points, flange_screw_points, frame_points  # noqa: E402
+from model import PARAMS as P, build_components, derived, deck_context, frame_harness, box, cyl, rail_screw_points, flange_screw_points, frame_points  # noqa: E402
 
 OUT = ROOT / "docs" / "05-build-plan"
 DWG = ROOT / "cad" / "drawings"
 DATE = "2026-10-03"
 D = derived(P)
 C = build_components(P)
+H = frame_harness(P)
+P2 = [("P1", "Making sketch for the prototype build plan", DATE, "AC"),
+      ("P2", "Lightened under Amish's decision 33B (KWC-DDR-003)", DATE, "AC")]
 
-COL = {"plate": "#3F3F46", "bar": "#65A30D", "spacer": "#57534E", "stop": "#44403C", "lip": "#78716C", "tape": "#E7E5E4",
+COL = {"plate": "#A8A29E", "spacer": "#57534E", "stop": "#44403C", "lip": "#78716C", "tape": "#E7E5E4",
        "block": "#0E7490", "plunger": "#C2410C", "nut": "#374151", "pdb": "#16A34A", "standoff": "#9CA3AF",
        "damper": "#111827", "fcplate": "#65A30D", "fc": "#0F766E", "radio": "#2563EB", "pmods": "#7C3AED",
        "rx": "#D97706", "pigtail": "#EAB308", "gasket": "#1F2937", "lid": "#E5E7EB", "grommet": "#111827",
        "switch": "#BE123C", "ant": "#4B5563", "mast": "#374151", "gnss": "#1D4ED8", "leads": "#DC2626",
-       "as150": "#F59E0B", "corner": "#6B7280", "shoe": "#94A3B8", "deck": "#D6D3D1", "screw": "#1F2937"}
+       "as150": "#F59E0B", "corner": "#6B7280", "shoe": "#94A3B8", "deck": "#D6D3D1", "screw": "#1F2937",
+       "relief": "#4D7C0F"}
 
 
 def fuse(*keys):
@@ -62,14 +66,19 @@ def made():
         "gasket": part("Lid gasket", C["gasket"], COL["gasket"]),
         "lid": part("Lid with grommets and safety switch", fuse("lid", "grommets", "switch"), COL["lid"]),
         "top": part("Antennas, GNSS mast and receiver", fuse("antennas", "mast", "gnss"), COL["gnss"]),
-        "bar": part("Strain-relief bar on two posts", fuse("strain_bar", "strain_posts"), COL["bar"]),
+        "relief": part("Strain-relief bar on two standoffs", fuse("relief_bar", "relief_standoffs"), COL["relief"]),
         "corner": part("Corner spacers (4)", C["corner_spacers"], COL["corner"]),
         "shoe": part("Payload shoe", C["shoe"], COL["shoe"]),
     }
 
 
 ORDER = ["plate", "spacers", "stops", "lips", "blocks", "plungers", "pdb", "fcmount", "fcplate", "fc",
-         "modules", "pigtail", "gasket", "lid", "top", "bar", "corner", "shoe"]
+         "modules", "pigtail", "gasket", "lid", "top", "relief", "corner", "shoe"]
+
+
+def harness_part():
+    """The frame's power harness (Kitewright Lift or Range supplies it, decision 33B); context only."""
+    return part("Frame power harness (Lift or Range, not in this repo)", H["leads"] + H["as150"], COL["leads"])
 
 
 # ----------------------------------------------------------------- fasteners drawn for the joint pictures
@@ -91,26 +100,28 @@ def rail_fixings(points):
     return sh
 
 
-def insert(x, y):
-    """Bonded flush M3 insert: body through the 4.2 mm hole, flush underneath, 0.8 mm flange on top."""
-    return (cyl(x, y, -P["plate"][2], 0.0, 4.2) + cyl(x, y, 0.0, 0.8, 7.0)) - cyl(x, y, -3, 2, 3.0)
+def m3_csk(x, y, top):
+    """M3 countersunk screw set from below the carbon plate, head flush with the underside, up to Z = top."""
+    ch = P["csk"][1]
+    head = Pos(x, y, -P["plate"][2] + ch / 2) * Cone(P["csk"][0] / 2 - 0.1, 1.5, ch)
+    return head + cyl(x, y, -P["plate"][2] + ch, top, 3.0)
 
 
 def m3_flange_fixing(x, y):
-    z0 = D["lid_z"][0]
-    head = cyl(x, y, z0 + P["flange"][2], z0 + P["flange"][2] + 3.0, 5.5)
-    shank = cyl(x, y, 0.8, z0 + P["flange"][2], 3.0)
-    return head + shank, insert(x, y)
+    """Lid flange stud: countersunk screw from below, nylon-insert nut on the flange."""
+    ftop = D["lid_z"][0] + P["flange"][2]
+    nut = cyl(x, y, ftop, ftop + 4.0, 5.5) - cyl(x, y, ftop - 1, ftop + 5, 3.0)
+    return m3_csk(x, y, ftop + 4.0), nut
 
 
 # ----------------------------------------------------------------- overview
 def overview():
     M = made()
     off = {"plate": (0, 0, 0), "spacers": (0, 0, -60), "stops": (90, 0, -60), "lips": (0, 0, -110),
-           "blocks": (-170, 0, -150), "plungers": (-170, 0, -230), "pdb": (0, 0, 60), "bar": (-170, 0, 60),
+           "blocks": (-170, 0, -150), "plungers": (-170, 0, -230), "pdb": (0, 0, 60),
            "fcmount": (0, 0, 120), "fcplate": (0, 0, 170), "fc": (0, 0, 210), "modules": (60, 0, 90),
            "pigtail": (150, 0, -40), "gasket": (0, 0, 310), "lid": (0, 0, 380), "top": (0, 0, 500),
-           "corner": (120, 120, 300), "shoe": (-120, 0, -300)}
+           "relief": (-190, 0, 60), "corner": (120, 120, 300), "shoe": (-120, 0, -300)}
     parts = []
     for k in ORDER:
         p = M[k]
@@ -130,37 +141,36 @@ def sheets():
     fx, fy, fd = P["frame_holes"]
     out.append(bv.component_sheet(
         Part("Core plate", C["plate"], COL["plate"]), [M["lips"], M["lid"], M["spacers"]],
-        dwg_no="KWC-DWG-101", title="Kitewright Core plate: making sketch", material="Carbon fibre plate 2 mm, quasi-isotropic",
-        notes=[f"Cut {L:.0f} x {W:.0f} mm from 2 mm carbon plate (waterjet or CNC service);",
-               "  origin at the centre;",
+        dwg_no="KWC-DWG-101", title="Kitewright Core plate: making sketch", material="Carbon fibre sheet 2 mm, 3K twill, CNC-cut",
+        rev="P2", revisions=P2,
+        notes=[f"{L:.0f} x {W:.0f} mm, 2 mm carbon sheet, CNC-cut from the DXF. Origin at the centre;",
                "  X is positive toward the front, Y to the left; top face is the datum.",
                f"Frame holes 4.5 mm at {fx:.0f} mm each side of centre, {fy:.0f} mm each side (4).",
                "Rail holes 4.5 mm on lines 70 mm each side: at -93, -75, -30, 30, 90",
                "  mm along X on both lines; stop holes 4.5 mm at 95 mm, 55 mm each side.",
-               "Insert holes 4.22 mm (16): lid flange at -60, 0, 60 mm, 50 each",
-               "  side; 25 mm standoffs at -75 and 25 mm, 30 each side; 8 mm",
-               "  standoffs at -66 and 6 mm, 21 each side; bar posts -95 mm, 28 each side.",
+               "M3 holes 3.4 mm (16), countersunk 90 deg from the UNDERSIDE to",
+               "  6.6 mm: lid flange at -60, 0, 60 mm, 50 each side; 25 mm standoffs",
+               "  at -75 and 25 mm, 30 each side; 8 mm standoffs at -66 and 6 mm,",
+               "  21 each side; strain-relief bar at -95 mm, 25 each side.",
                "Cable slot 12 x 24 mm from 70 to 82 mm along X, on the centre line.",
-               "Seal every cut edge with thin epoxy; wear a mask (carbon dust).",
-               "Bond M3 flush inserts with structural epoxy, flange on top, body",
-               "  flush underneath (the shoe slides 0.3 mm below the plate).",
-               "Check: run a straight edge across the underside; nothing proud."],
+               "Seal the cut edges with thin epoxy; wear a mask (carbon dust).",
+               "Check: M3 countersunk heads sit flush underneath (the shoe slides",
+               "  0.3 mm below); run a straight edge across; nothing proud."],
         inset_view=(-30, -58), **base))
     sb = C["spacer_left"]
     out.append(bv.component_sheet(
         Part("Rail spacer bar", sb, COL["spacer"]), [M["plate"], M["lips"]],
         dwg_no="KWC-DWG-102", title="Kitewright Core rail spacer bar (make 2): making sketch",
-        material="Aluminium flat bar 10 x 6 mm, 6061-T6",
+        material="Aluminium flat bar 10 x 6 mm, 6061-T6, clear-anodised", rev="P2", revisions=P2,
         view_shape=Pos(0, -70, -D["spacer_z"][0]) * sb, inset_view=(-30, -58),
         notes=["Make two, the same. Saw 10 x 6 mm bar to 200 mm; square the ends.",
                "Lay it 6 mm side down. Mark a centre line 5 mm from each edge.",
                "Holes 4.5 mm on the centre line at 7, 25, 70, 130 and 190 mm",
                "  from the rear end (X = -93, -75, -30, 30 and 90 mm).",
-               "Mill three windows 6 mm wide through the 6 mm height, leaving",
-               "  1.5 mm walls: 31.5 to 63.5, 76.5 to 123.5, 136.5 to 183.5 mm",
-               "  from the rear end (6.5 mm of web from each hole centre).",
-               "Deburr; break every edge lightly. The outer 6 mm face lines up",
-               "  with the long edge of the core plate.",
+               "Mill three windows 3.6 mm tall through the 10 mm width, centred on",
+               "  the 6 mm height (1.2 mm left top and bottom): X -66 to -36, -24 to",
+               "  24 and 36 to 84 mm (34 to 64, 76 to 124, 136 to 184 from the rear).",
+               "Deburr and clear-anodise (it touches the carbon plate).",
                "Check: lay it under the plate and look through all five holes."],
         **base))
     st = C["front_stops"] & box(80, 110, 30, 80, -20, 5)
@@ -183,7 +193,7 @@ def sheets():
     out.append(bv.component_sheet(
         Part("Rail lip", lp, COL["lip"]), [M["plate"], M["spacers"], M["shoe"]],
         dwg_no="KWC-DWG-104", title="Kitewright Core rail lip (make 2, mirror pair): making sketch",
-        material="Aluminium flat bar 30 x 3 mm, 6061-T6; UHMW-PE tape 0.7 mm",
+        material="Aluminium flat bar 30 x 3 mm, 6061-T6; UHMW-PE tape 0.7 mm", rev="P2", revisions=P2,
         view_shape=Pos(0, -60, -D["lip_z"][0]) * lp, inset_view=(-30, -58),
         notes=["Make a left and a right. Saw 30 x 3 mm bar to 200 mm.",
                "Screw holes 4.5 mm on a line 5 mm from the OUTER edge, at 7, 25,",
@@ -192,27 +202,26 @@ def sheets():
                "Pin hole 5.5 mm at 16 mm from the rear end, 20 mm from the outer",
                "  edge. Countersink the screw holes 90 deg from the UNDERSIDE so",
                "  the M4 heads sit flush; the left and right lips are mirror images.",
-               "Underside pockets 2 mm deep, 1.5 to 18.5 mm from the INNER edge,",
-               "  at the same X as the spacer windows (1 mm skin left).",
+               "Pockets from the UNDERSIDE, 1.8 mm deep, 2 to 18 mm from the inner",
+               "  edge, at 34 to 64, 76 to 124 and 136 to 184 mm from the rear end.",
                "Stick 0.7 mm UHMW tape on the top face from the inner edge to 1 mm",
                "  short of the spacer, rear end to the stop; cut out the pin hole.",
-               "Check: a 5 mm shoe offcut slides between lip and plate with",
-               "  a 0.2 to 0.4 mm feeler gap once assembled."],
+               "Check: a 5 mm shoe offcut slides with a 0.2 to 0.4 mm feeler gap."],
         **base))
     blk = C["pin_block"] & box(-120, -60, -80, -40, -40, 0)
     out.append(bv.component_sheet(
         Part("Pin block", blk, COL["block"]), [M["lips"], M["plungers"], M["plate"]],
         dwg_no="KWC-DWG-105", title="Kitewright Core pin block (make 2): making sketch",
-        material="Aluminium bar 30 x 15 mm, 6061-T6",
+        material="Aluminium bar 30 x 12 mm, 6061-T6", rev="P2", revisions=P2,
         view_shape=Pos(84, 60, -D["block_z"][0]) * blk, inset_view=(-30, -58),
-        notes=["Make two, the same. Saw 30 x 15 mm bar to 28 mm long.",
+        notes=["Make two, the same. Saw 30 x 12 mm bar to 28 mm long.",
                "Plunger hole: centre 14 mm from each end, 20 mm from the OUTER",
                "  face; drill 9.0 mm through, square to the 28 x 30 face, and tap",
                "  M10 x 1 (fine thread) all the way.",
                "Two screw holes 4.5 mm, 5 mm from the outer face, at 5 mm and",
                "  23 mm from the rear end.",
                "Fit: under the lip at the rear of the rail, outer face flush with",
-               "  the plate edge; two M4 x 35 cap screws through block, lip,",
+               "  the plate edge; two M4 x 30 cap screws through block, lip,",
                "  spacer and plate, nylon-insert nuts on top.",
                "Check: the plunger screws in by hand; its pin comes up through",
                "  the lip hole without touching the sides."],
@@ -236,7 +245,7 @@ def sheets():
     out.append(bv.component_sheet(
         Part("Lid", C["lid"], COL["lid"]), [M["plate"], M["gasket"], M["top"]],
         dwg_no="KWC-DWG-107", title="Kitewright Core lid: making sketch",
-        material="3D printed ASA, light grey, 0.2 mm layers, 4 walls, 25 % infill",
+        material="3D printed ASA, light grey, 0.2 mm layers, 3 walls, 25 % infill", rev="P2", revisions=P2,
         notes=["Print open side down on the flange; no supports except the two",
                "  rear grommet holes and the service opening (bridges).",
                "Outside 168 x 92 x 62 mm, 1.5 mm walls and top; flange 180 x 108 x",
@@ -247,6 +256,7 @@ def sheets():
                "Top: three 6.5 mm SMA holes and a 12.2 mm safety switch hole.",
                "Rear wall: two 20 mm grommet holes, 13 mm each side, 17 mm up;",
                "  12 x 7 mm service opening for the USB-C lead.",
+               "Fit: over the six M3 studs; nylon-insert nuts on the flange.",
                "Check: lid sits flat on the plate on its gasket with no rock."],
         **base))
     out.append(bv.component_sheet(
@@ -264,6 +274,24 @@ def sheets():
                "  forward (+X, toward the cable slot).",
                "Check: the plate hangs level on the four dampers and nothing",
                "  touches it except the dampers."],
+        **base))
+    rb = C["relief_bar"]
+    out.append(bv.component_sheet(
+        Part("Strain-relief bar", rb, COL["relief"]), [M["plate"], M["lid"], harness_part()],
+        dwg_no="KWC-DWG-109", title="Kitewright Core strain-relief bar: making sketch",
+        material="G10 / FR4 glass-epoxy sheet 2 mm (offcut of the damping plate sheet)",
+        view_shape=Pos(-P["relief_x"], 0, -P["relief_standoff"][1]) * rb, inset_view=(30, -130),
+        revisions=[("P1", "New part under Amish's decision 33B (KWC-DDR-003)", DATE, "AC")],
+        notes=["Cut 60 x 8 mm from 2 mm G10, wet or under extraction; wear a",
+               "  mask (glass dust) and file the edges smooth.",
+               "Two 3.4 mm holes on the centre line, 25 mm each side of the middle",
+               "  (a 50 mm pattern).",
+               "Fit: on two 12 mm M3 female-female standoffs, on countersunk",
+               "  screws set from below the plate at X -95 mm, 25 mm each side,",
+               "  behind the lid; two M3 screws from the top.",
+               "The frame's four power leads lie on it and are tied to it with",
+               "  four UV-stable cable ties (step 11).",
+               "Check: it clears the lid flange and the frame deck by 1 mm or more."],
         **base))
     return out
 
@@ -296,7 +324,7 @@ def joints():
     out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("Spacer bar", C["spacer_right"], COL["spacer"]),
                                 ("Lip", C["lip_right"], COL["lip"]), ("Payload shoe", C["shoe"], COL["shoe"]),
                                 ("Pin block", C["pin_block"], COL["block"]), ("Locking pin (indexing plunger)", C["plunger"], COL["plunger"]),
-                                ("Jam nut", C["jam_nut"], COL["nut"]), ("M4 x 35 cap screw and nut", fix, COL["screw"])], reg),
+                                ("Jam nut", C["jam_nut"], COL["nut"]), ("M4 x 30 cap screw and nut", fix, COL["screw"])], reg),
                         OUT / "joint-02.png", "Joint 2: a locking pin, cut through its axis",
                         subtitle="Pin passes up through the lip into the shoe; pull the knob down and twist to hold it out",
                         elev=10, azim=-30))
@@ -320,28 +348,28 @@ def joints():
     # 5 flight controller damping, cut through a damper
     reg = box(-95, -55, 30, 50, -4, 60)
     fix = cyl(-75, 30, D["fc_plate_z"], D["fc_plate_z"] + P["fc_plate"][2] + 3, 3.0) + cyl(-75, 30, D["fc_plate_z"] + P["fc_plate"][2], D["fc_plate_z"] + P["fc_plate"][2] + 3, 5.5)
-    clinch = insert(-75, 30)
-    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("M3 bonded flush insert", clinch, COL["screw"]),
+    csk = m3_csk(-75, 30, 6.0)
+    out.append(bv.joint(window([("Carbon core plate", C["plate"], COL["plate"]), ("M3 countersunk screw from below", csk, COL["screw"]),
                                 ("25 mm standoff", C["fc_standoffs"], COL["standoff"]), ("Silicone damper", C["dampers"], COL["damper"]),
                                 ("Damping plate", C["fc_plate"], COL["fcplate"]), ("Flight controller", C["fc"], COL["fc"]),
                                 ("M3 screw in the damper", fix, COL["screw"])], reg),
                         OUT / "joint-05.png", "Joint 5: flight controller damping, cut through a damper",
-                        subtitle="Standoff screws into the bonded flush insert; the plate floats on four silicone dampers",
+                        subtitle="Standoff on a flush countersunk screw set from below; the plate floats on four silicone dampers",
                         elev=12, azim=-62))
     # 6 lid flange to plate
     scr, cl = m3_flange_fixing(-60.0, 50.0)
     reg = box(-80, -60, 30, 62, -4, 18)
-    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("M3 bonded insert (flush below)", cl, COL["screw"]),
+    out.append(bv.joint(window([("Carbon core plate", C["plate"], COL["plate"]), ("M3 nylon-insert nut", cl, COL["nut"]),
                                 ("Gasket", C["gasket"], COL["gasket"]), ("Lid flange and wall", C["lid"], COL["lid"]),
-                                ("M3 cap screw", scr, COL["screw"])], reg),
+                                ("M3 countersunk stud, flush below", scr, COL["screw"])], reg),
                         OUT / "joint-06.png", "Joint 6: lid flange to plate, cut through a screw",
-                        subtitle="Six M3 screws into bonded inserts; the 1 mm foam gasket seals the flange", elev=14, azim=-35))
+                        subtitle="Six countersunk studs from below, nuts on the flange; the 1 mm foam gasket seals it", elev=14, azim=-35))
     # 7 core to frame deck (the deck belongs to the frame repos)
     fx, fy, _ = P["frame_holes"]
     reg = box(92, fx, 45, 75, -14, 18)
     bolt = cyl(fx, fy, -P["plate"][2] - 5, D["deck_z"] + P["deck"][2] + 3, 4.0) + cyl(fx, fy, D["deck_z"] + P["deck"][2], D["deck_z"] + P["deck"][2] + 3, 7.0) \
         + m4_nut(fx, fy, -P["plate"][2] - 5)
-    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("Corner spacer 16 x 8 mm", C["corner_spacers"], COL["corner"]),
+    out.append(bv.joint(window([("Carbon core plate", C["plate"], COL["plate"]), ("Corner spacer 12 x 8 mm", C["corner_spacers"], COL["corner"]),
                                 ("Frame deck (Lift or Range)", deck_context(P), COL["deck"]), ("M4 bolt, nut below the plate", bolt, COL["screw"]),
                                 ("Rail lip", C["lip_left"], COL["lip"])], reg),
                         OUT / "joint-07.png", "Joint 7: core to frame deck at a corner, cut through the bolt",
@@ -369,10 +397,10 @@ def steps():
        "Spacer bars, front stops, then taped lips; ten M4 countersunk screws up through all three, nuts on top",
        [(0, 0, -50), (0, 0, -50), (0, 0, -100)], **below)
     go(2, [M["blocks"], M["plungers"]], "pin blocks and locking pins",
-       "Blocks under the lips at the rear, M4 x 35 screws; screw each plunger in until its pin is 0.5 mm short of the plate",
+       "Blocks under the lips at the rear, M4 x 30 screws; screw each plunger in until its pin is 0.5 mm short of the plate",
        [(0, 0, -60), (0, 0, -140)], **below)
     go(3, [M["pdb"]], "power board",
-       "8 mm standoffs into the bonded inserts; the four power pads stay bare for the frame harness leads",
+       "8 mm standoffs on countersunk screws set from below; board on top; tin the four pads for the frame's leads",
        [(0, 0, 60)], elev=30, azim=-50)
     go(4, [M["fcmount"], M["fcplate"], M["fc"]], "flight controller on its dampers",
        "25 mm standoffs, dampers, damping plate; controller on M3 nylon screws, arrow forward",
@@ -382,20 +410,19 @@ def steps():
     go(6, [M["pigtail"]], "DS-014 pigtail",
        "Cable down through the slot, clamped to the plate; plug left hanging below", [(0, 0, 80)], elev=30, azim=-50)
     go(7, [M["gasket"], M["lid"]], "gasket and lid",
-       "Lower the lid onto the gasket, six M3 screws", [(0, 0, 80), (0, 0, 160)], elev=30, azim=-50)
+       "Grommets in the rear wall; lower the lid over the six studs; six M3 nylon-insert nuts", [(0, 0, 80), (0, 0, 160)], elev=30, azim=-50)
     go(8, [M["top"]], "antennas, GNSS mast and receiver",
        "SMA bulkheads through the lid top; mast into its socket, thumbscrew", [(0, 0, 120)], elev=24, azim=-50)
-    harness = part("Frame harness leads (Lift or Range, not in this repo)", harness_context(P), COL["leads"])
-    go(9, [M["bar"]], "strain-relief bar; frame harness leads",
-       "Two posts and a G10 bar behind the lid; the frame's own four leads are soldered to the pads and tied to it",
-       [(-80, 0, 40)], context=[harness], elev=24, azim=-50)
+    go(9, [M["relief"]], "strain-relief bar behind the lid",
+       "Two 12 mm standoffs on countersunk screws set from below; G10 bar on top with two M3 screws", [(0, 0, 70)], elev=24, azim=-50)
     go(10, [M["shoe"]], "payload shoe in from the rear (payload swap)",
        "Pull and twist both pins out, slide to the front stops, twist back: both pins snap in, no red showing",
        [(-260, 0, 0)], elev=-22, azim=-40)
     deck = part("Frame deck (Lift or Range, not in this repo)", deck_context(P), COL["deck"])
-    go(11, [M["corner"]], "into the frame",
-       "Corner spacers on the plate, lid up through the deck opening; four M4 bolts down through deck, spacers and plate",
-       [(160, -120, 0)], context=[deck], elev=26, azim=-50)
+    harness = harness_part()
+    go(11, [M["corner"], harness], "into the frame, and the frame's power harness",
+       "Bolt the core under the deck; lid off, the frame's four leads in through the grommets, soldered to the pads, tied to the bar",
+       [(160, -120, 0), (-120, 0, 0)], context=[deck], elev=26, azim=-50)
     return out
 
 

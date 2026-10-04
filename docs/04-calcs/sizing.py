@@ -1,4 +1,5 @@
-"""Kitewright Core sizing calculations, KWC-CAL-001 (TRL 3, constructable design of KWC-DDR-002).
+"""Kitewright Core sizing calculations, KWC-CAL-001 (TRL 3, constructable design of KWC-DDR-002,
+lightened under Amish's decision 33B of 2026-10-03, KWC-DDR-003).
 
 Run from the repo root:  python docs/04-calcs/sizing.py
 Prints every number quoted in docs/04-calcs/01-sizing.md (tags in brackets, for example [A3]) and
@@ -38,17 +39,16 @@ K_DROP, A_DROP = 1.5, 2.0  # R3: 1.5 x rated mass under a 2 g drop
 A_FORE = 3.0             # g, fore-aft design case (hard landing or crash pitch), times K_DROP
 A_SIDE = 1.0             # g, side case, payload centre of mass 80 mm below the shoe
 H_CG = 80.0              # mm
-SY_6061, SY_5052 = 276.0, 193.0   # MPa yield, 6061-T6 and 5052-H32
-S_CFRP = 250.0           # MPa, design allowable of a quasi-isotropic 2 mm carbon plate in bending (conservative; typical flexural strength 500 to 600 MPa)
+SY_6061 = 276.0          # MPa yield, 6061-T6
+S_CFRP = 250.0           # MPa, design allowable for the 2 mm woven carbon plate in bending and tension
+                         #   (typical strength 500 to 600 MPa; halved for holes, cold and moisture)
+B_CFRP = 200.0           # MPa, conservative bearing allowable of the carbon plate at a bolt hole
 TAU_PIN = 400.0          # MPa, hardened steel plunger pin, shear (conservative)
 F_M4 = 8.78 * 450.0 * 0.8
 # Payload power
 P_PAY = 100.0            # W, R4
 V_BUS_MIN = {"6S Li-ion at end of discharge (3.0 V/cell)": 18.0, "12S Li-ion at end of discharge": 36.0,
-             "14S Li-ion at end of discharge (3.0 V/cell), ColdCell variant for Lift": 42.0,
              "16S LiFePO4 at end of discharge (2.8 V/cell)": 44.8}
-V_BUS_TOP = {"14S Li-ion full (4.2 V/cell), ColdCell variant for Lift": 58.8, "16S LiFePO4 full (3.65 V/cell)": 58.4}
-V_BOARD_MAX = 60.0       # V, rating of the power board and power modules (BOM lines 18, 19)
 R_PIGTAIL = 0.30 * 0.0333 * 2 / 2   # ohm: 0.3 m, 20 AWG out and back, two pins in parallel each way
 EFUSE_LIMIT = 8.0        # A
 # Heat
@@ -75,14 +75,17 @@ HEATER_SHARE = 0.05      # fraction of pack energy spent on its heater in flight
 # Bought-part masses, g (catalogue class values, to confirm when bought)
 M_BOUGHT = {"Flight controller (FMUv6X class, with baseboard)": 100.0, "GNSS receiver and compass": 35.0,
             "GNSS mast tube and thumbscrew": 10.0, "Locking pins (2 plungers)": 50.0,
-            "Vibration dampers (4)": 8.0, "Standoffs (8)": 12.0, "Bonded flush inserts M3 (16)": 6.4,
+            "Vibration dampers (4)": 8.0, "Standoffs (8)": 12.0,
+            "Countersunk M3 fixings (16) and lid stud nuts (6)": 10.0,
+            "Strain-relief standoffs (2), screws and cable ties": 4.0,
             "Power distribution board with current sensor": 70.0, "Power modules (monitor, backup supply, payload switch)": 35.0,
             "Telemetry radio (air side)": 25.0,
             "Control link receiver": 6.0, "Antennas and SMA bulkheads (3)": 60.0, "DS-014 pigtail and plug": 35.0,
             "Safety switch and buzzer": 15.0, "Grommets (2)": 6.0, "Signal harness": 50.0, "Fasteners": 30.0,
             "Lid gasket": 4.0}
 M_COMPANION = 60.0       # optional companion computer, carried outside the core lid
-M_LEADS_MOVED = 124.0    # g: four 8 AWG leads and AS150 halves, now in each frame's harness (KWC-DDR-003)
+M_LEADS_MOVED = 124.0    # g, four 8 AWG leads and four AS150 halves, now in each frame's harness (decision 33B)
+M_CORE_BEFORE = 1.274    # kg, the core as drawn before decision 33B (KWC-CAL-001 v0.1, H2)
 R9_LIMIT = 1.0           # kg, as written in KWC-REQ-001 R9
 
 
@@ -105,16 +108,12 @@ L_bear = P["shoe"][0]
 arm = (P["plate"][1] / 2 - P["spacer_bar"][0]) - (D["lip_y"][0] + ov / 2)   # spacer inner edge to the middle of the overlap
 M_lip = F_v / 2 * arm
 Z_lip = L_bear * lt ** 2 / 6
-s_lip_root = M_lip / Z_lip
-# the lip pockets (KWC-DDR-003) stop 1.5 mm short of the spacer, so the root keeps the full 3 mm; at the
-# pocket edge the lever is shorter but, conservatively, the whole shoe length is taken at the pocket skin
-pk_d, pk_y0, pk_y1 = P["lip_pocket"]
-arm_pk = pk_y1 - (D["lip_y"][0] + ov / 2)
-skin = lt - pk_d
-s_lip_pk = F_v / 2 * arm_pk / (L_bear * skin ** 2 / 6)
-s_lip = max(s_lip_root, s_lip_pk)
-out("A2", f"Shoe overlaps each lip by {ov:.1f} mm over {L_bear:.0f} mm; lever {arm:.1f} mm; lip bending at the root {s_lip_root:.1f} MPa; "
-          f"at the pocket edge (lever {arm_pk:.1f} mm, {skin:.1f} mm skin over the whole length, conservative) {s_lip_pk:.1f} MPa vs 276 MPa (factor {SY_6061 / s_lip:.0f})")
+s_lip = M_lip / Z_lip
+out("A2", f"Shoe overlaps each lip by {ov:.1f} mm over {L_bear:.0f} mm; lever {arm:.1f} mm; lip bending {s_lip:.1f} MPa vs 276 MPa (factor {SY_6061 / s_lip:.0f})")
+pa, pb, pd = P["lip_pocket"]
+arm_p = pb - (D["lip_y"][0] + ov / 2)                 # pocket edge to the middle of the overlap
+s_lip_p = F_v / 2 * arm_p / (L_bear * (lt - pd) ** 2 / 6)  # conservative: pocket taken along the whole shoe length
+out("A2", f"At the lip pocket's edge ({lt - pd:.1f} mm floor, lever {arm_p:.1f} mm): {s_lip_p:.1f} MPa (factor {SY_6061 / s_lip_p:.0f})")
 n_scr = 5 + 5   # screws per side: 3 rail, 2 block (the stop screws carry no vertical shoe load)
 F_scr = F_v / n_scr * (1 + arm / (P["spacer_bar"][0] / 2))   # prying factor about the spacer edge
 out("A3", f"Rail screws M4: {n_scr} in all; worst tension with prying {F_scr:.0f} N vs {F_M4:,.0f} N allowable (factor {F_M4 / F_scr:.0f})")
@@ -122,13 +121,12 @@ span = P["frame_holes"][0] * 2
 w = F_v / 2 / (P["rail_x"][1] - P["rail_x"][0])     # N/mm along each rail
 M_beam = w * span ** 2 / 8
 Zs = (lambda b, h: b * h ** 2 / 6)
-ww = P["spacer_window_wall"]
-Z_side = (Zs(30.0, P["plate"][2]) + Zs(2 * ww, P["spacer_bar"][1])
-          + Zs(lw - (pk_y1 - pk_y0), lt) + Zs(pk_y1 - pk_y0, skin))     # at a pocket: spacer walls only, lip skin
+sbw, sbh = P["spacer_bar"]
+hw = P["spacer_window"]
+Z_spacer = sbw * (sbh ** 3 - hw ** 3) / 12 / (sbh / 2)   # windowed spacer bar (two 1.2 mm flanges)
+Z_side = Zs(30.0, P["plate"][2]) + Z_spacer + Zs(lw, lt - pd)   # lip at its pocket floor
 s_beam = M_beam / Z_side
-S_SIDE = min(S_CFRP, SY_6061)
-out("A4", f"Plate edge strip (carbon), spacer walls and pocketed lip as one side beam between frame bolts {span:.0f} mm apart, taken at a pocket: "
-          f"{s_beam:.0f} MPa vs {S_SIDE:.0f} MPa, the lower of the carbon plate allowable and 6061 yield (factor {S_SIDE / s_beam:.1f}); the three parts are taken as separate (not bonded), which is conservative")
+out("A4", f"Carbon plate edge strip, windowed spacer and pocketed lip as one side beam between frame bolts {span:.0f} mm apart: {s_beam:.0f} MPa vs {S_CFRP:.0f} MPa carbon allowable (factor {S_CFRP / s_beam:.1f}) and 276 MPa in the bars (factor {SY_6061 / s_beam:.0f}); the three parts are taken as separate (not bonded), which is conservative")
 F_fore = K_DROP * M_RATED * A_FORE * G
 A_pin = math.pi * P["pin_d"] ** 2 / 4
 tau = F_fore / A_pin
@@ -139,10 +137,11 @@ out("A6", f"Forward load into the two front stops: bearing {F_fore / A_stop:.1f}
 M_roll = A_SIDE * K_DROP * M_RATED * G * H_CG / 1000
 F_roll = M_roll / ((P["shoe"][1] / 2 - ov / 2) * 2 / 1000)
 out("A7", f"Side case: roll moment {M_roll:.1f} N m reacted across the lips: {F_roll:.0f} N per side")
-bear_cf = F_v / 4 / (P["frame_holes"][2] * P["plate"][2])
-out("A8", f"Frame bolt bearing in the 2 mm carbon plate: {bear_cf:.1f} MPa per hole at the vertical design load (carbon bearing strength typically over 300 MPa)")
-r3_ok = SY_6061 / s_lip > 5 and F_M4 / F_scr > 5 and S_SIDE / s_beam > 5 and TAU_PIN / tau > 5
-res("R3", f"Vertical {F_v:.0f} N: lips {SY_6061 / s_lip:.0f}x, screws {F_M4 / F_scr:.0f}x, side beam {S_SIDE / s_beam:.1f}x; fore-aft {F_fore:.0f} N on one pin {TAU_PIN / tau:.0f}x",
+F_blk = F_fore / 2                                  # one pin alone: its block's two M4 screws carry the fore-aft load
+b_cf = F_blk / (4.0 * P["plate"][2])
+out("A8", f"Carbon plate bearing: {F_fore:.0f} N fore-aft through one pin block's two M4 screws, {F_blk:.0f} N each on a 4 x 2 mm hole: {b_cf:.1f} MPa vs {B_CFRP:.0f} MPa (factor {B_CFRP / b_cf:.0f}); the frame bolts share it four ways")
+r3_ok = SY_6061 / s_lip_p > 2 and F_M4 / F_scr > 2 and S_CFRP / s_beam > 2 and TAU_PIN / tau > 2 and B_CFRP / b_cf > 2
+res("R3", f"Vertical {F_v:.0f} N: lips {SY_6061 / s_lip_p:.0f}x at the pockets, screws {F_M4 / F_scr:.0f}x, carbon side beam {S_CFRP / s_beam:.1f}x; fore-aft {F_fore:.0f} N on one pin {TAU_PIN / tau:.0f}x, carbon bearing {B_CFRP / b_cf:.0f}x",
     "3 x and 1.5 x at 2 g, rated 5 kg", "Met on paper" if r3_ok else "Not met")
 
 # =============================================================== B. payload swap (R2)
@@ -161,8 +160,6 @@ for k, v in V_BUS_MIN.items():
     out("C1", f"{k}: {v:.1f} V; 100 W needs {i:.2f} A; pigtail drop {i * R_PIGTAIL * 1000:.0f} mV")
 i_max = P_PAY / min(V_BUS_MIN.values())
 out("C2", f"Payload switch current limit {EFUSE_LIMIT:.0f} A covers the worst case {i_max:.2f} A with {EFUSE_LIMIT / i_max:.2f} x margin")
-for k, v in V_BUS_TOP.items():
-    out("C3", f"{k}: {v:.1f} V, {V_BOARD_MAX - v:.1f} V under the {V_BOARD_MAX:.0f} V rating of the power board and modules")
 res("R4", f"100 W needs at most {i_max:.1f} A (6S at 18 V); switch limit {EFUSE_LIMIT:.0f} A; DS-014 pin rating to confirm",
     "100 W continuous at bus voltage", "Met on paper (pin rating to confirm)")
 
@@ -209,8 +206,8 @@ res("R7", f"Model published: {bare:.0%} (cold packs) and {warm:.0%} (ColdCell) o
 IO = {"Lift, eight motors": 8 + 3, "Lift, six motors": 6 + 3, "Range, four lift motors, pusher and five servos": 4 + 1 + 5}
 for k, v in IO.items():
     out("G1", f"{k}: {v} outputs needed of 16 on an FMUv6X class controller")
-res("R8", "One core, one interface (Table 7); Lift needs 11 of 16 outputs and Range 10 of 16; parameter sets only", "Same core in Lift and Range",
-    "Met by design")
+res("R8", "One core, one interface (Table 7); Lift needs 11 of 16 outputs and Range 10 of 16; parameter sets only; since decision 33B, moving the core between frames also means changing the frame's soldered power harness at the board's pads (open decision O2)", "Same core in Lift and Range",
+    "Met by design for firmware and fixing; harness change open (O2)")
 res("R10", "Released PX4 (v1.15 or later), parameters and stock modules only; ColdCell reports over DroneCAN", "Released PX4, no source change",
     "Met by design")
 res("R1", "DS-014 40-pin connector on a 0.3 m pigtail; signals from the flight controller and bus; licence and pinout to confirm", "DS-014 signals and power present",
@@ -228,21 +225,13 @@ m_core = (m_made + m_bought) / 1000
 out("H1", "Made parts from model volumes, g: " + ", ".join(f"{k} {v:.0f}" for k, v in made.items()))
 out("H2", f"Made parts {m_made:.0f} g; bought parts {m_bought:.0f} g; core {m_core:.3f} kg without the shoe ({shoe_g:.0f} g, counted with each payload) and without the optional companion computer ({M_COMPANION:.0f} g, outside the lid)")
 over = m_core - R9_LIMIT
-out("H3", f"R9: {m_core:.3f} kg against the R9 figure; {over * 1000:+.0f} g ({over / R9_LIMIT:+.1%})")
-# what decision O1 option B changed (KWC-DDR-003), against the design of KWC-DDR-002
-was = {"plate": V["plate"] * RHO["al"], "lid (2 mm walls)": 114.0, "rail spacer bars and lips, unpocketed": 158.0,
-       "power leads and four AS150 halves": M_LEADS_MOVED, "clinch nuts (14)": 7.0}
-now = {"plate": made["plate"], "lid (2 mm walls)": made["lid"],
-       "rail spacer bars and lips, unpocketed": made["lip_left"] + made["lip_right"] + made["spacer_left"] + made["spacer_right"],
-       "power leads and four AS150 halves": made["strain_bar"] + made["strain_posts"],
-       "clinch nuts (14)": M_BOUGHT["Bonded flush inserts M3 (16)"]}
-for k in was:
-    out("H4", f"O1 option B: {k}: {was[k]:.0f} g before, {now[k]:.0f} g now ({now[k] - was[k]:+.0f} g)")
-saved = sum(was.values()) - sum(now.values())
-out("H5", f"O1 option B saves {saved:.0f} g against the 1.274 kg design of KWC-DDR-002; the leads ({M_LEADS_MOVED:.0f} g) are now carried in each frame's harness")
-out("H6", f"R9 margin {-over * 1000:.0f} g, inside the accuracy of the bought-part catalogue masses: weigh the built core at TRL 4")
-res("R9", f"{m_core:.3f} kg estimated (carbon plate, 1.5 mm lid walls, pocketed rail bars; power leads in the frame harness)", "See KWC-REQ-001 R9",
-    "Not met" if over > 0 else f"Met on paper ({-over * 1000:.0f} g margin)")
+out("H3", f"R9: {m_core:.3f} kg against the {R9_LIMIT:.1f} kg figure; {over * 1000:+.0f} g ({over / R9_LIMIT:+.1%})")
+out("H4", f"Decision 33B: {(M_CORE_BEFORE - m_core) * 1000:.0f} g lighter than the {M_CORE_BEFORE:.3f} kg core as drawn before: "
+          f"structure (carbon plate, pocketed rail bars, 12 mm pin blocks, 12 mm corner spacers, 1.5 mm lid walls) and the "
+          f"{M_LEADS_MOVED:.0f} g of power leads and AS150 halves moved to the frames, less the strain-relief bar and countersunk fixings")
+out("H5", f"Each frame now carries its own power harness (about {M_LEADS_MOVED:.0f} g, about USD 60); the airframe mass is unchanged overall")
+res("R9", f"{m_core:.2f} kg estimated (carbon plate, pocketed rails, power leads in the frames' harness; decision 33B)", "1.0 kg or less, excluding batteries",
+    "Not met" if over > 0 else f"Met on paper ({-over * 1000:.0f} g margin; bought-part masses to confirm)")
 
 # =============================================================== I. cost (R11)
 bom = list(csv.DictReader((ROOT / "bom/bom.csv").open()))

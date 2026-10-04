@@ -4,7 +4,7 @@
 
 ![TRL 3](https://img.shields.io/badge/TRL-3%20of%209-0F766E) ![Hardware: CERN-OHL-S-2.0](https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-111827) ![Software: MIT](https://img.shields.io/badge/software-MIT-111827) [![REUSE compliant](https://github.com/BoujeeEnjinia1701/kitewright-core/actions/workflows/reuse.yml/badge.svg)](https://github.com/BoujeeEnjinia1701/kitewright-core/actions/workflows/reuse.yml)
 
-**Area:** Aerial robotics · **TRL:** 3 of 9 (proof of concept on paper) · **Value-engineering target:** USD 5,000; estimated cost USD 3,944.40 · **Difficulty:** 4 of 5
+**Area:** Aerial robotics · **TRL:** 3 of 9 (proof of concept on paper) · **Value-engineering target:** USD 5,000; estimated cost USD 3,946.80 · **Difficulty:** 4 of 5
 
 The shared core of the Kitewright open drone family: open autopilot, ColdCell power bus and one standard payload mount.
 
@@ -60,7 +60,7 @@ Full design precis: [docs/02-concept.md](docs/02-concept.md) · Requirements: [d
 
 ![Concept, seen from the front right and above, with an adult hand for scale](media/hero.png)
 
-At TRL 3 the core meets all eleven of its requirements on paper: the rail and two locking pins carry a 5 kg payload with factors of 6.8 or more, a gloved payload swap takes about 52 s, 100 W reaches the payload, and the avionics stay within their ratings from -20 to +45 °C. With a carbon fibre plate, 1.5 mm lid walls, pocketed rail bars and the power leads moved to each frame's harness (Amish's decision, KWC-DDR-003), the core weighs an estimated 0.996 kg against the 1.0 kg of R9. The hover-time model gives 47 % of sea-level hover time at 5,000 m and -20 °C with cold packs and 70 % with ColdCell packs (estimates).
+At TRL 3 the core meets all eleven requirements on paper: the rail and two locking pins carry a 5 kg payload with factors of 8 or more, a gloved payload swap takes about 52 s, 100 W reaches the payload, and the avionics stay within their ratings from -20 to +45 °C. With a carbon fibre plate, lightened rails and the power leads moved into each frame's harness (Amish's decision of 2026-10-03), the core is estimated at 0.99 kg against R9's 1.0 kg. R8 is restated so that a core moving between Lift and Range has its frame's power harness resoldered at the bench (Amish's decision of 2026-10-04), and the frames now carry the core to one shared mounting envelope. The hover-time model gives 47 % of sea-level hover time at 5,000 m and -20 °C with cold packs and 70 % with ColdCell packs (estimates).
 
 ## Key components
 
@@ -76,7 +76,7 @@ At TRL 3 the core meets all eleven of its requirements on paper: the rail and tw
 
 ## Building the prototype
 
-The prototype is one core: a 2 mm aluminium plate carrying the avionics under a printed lid, with a plain rail, two front stops and two spring locking pins underneath, and one payload shoe. Eight parts are made with a saw, drill, tap and 3D printer; the rest are bought. The [prototype build plan](docs/05-build-plan.md) gives a making sketch for every made part, close-ups of every joint, eleven assembly steps with pictures, first checks and safety stops. It is a plan, not yet built.
+The prototype is one core: a 2 mm carbon fibre plate carrying the avionics under a printed lid, with a plain rail, two front stops and two spring locking pins underneath, and one payload shoe. Nine parts are made, the carbon plate by a cutting service and the others with a saw, drill, small mill, tap and 3D printer; everything else is bought, and each frame brings its own power leads. The [prototype build plan](docs/05-build-plan.md) gives a making sketch for every made part, close-ups of every joint, eleven assembly steps with pictures, first checks and safety stops. It is a plan, not yet built.
 
 ![Every component, pulled apart and numbered in build order](docs/05-build-plan/overview.png)
 

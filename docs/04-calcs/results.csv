@@ -1,12 +1,12 @@
 requirement,result,target,status
 R1,DS-014 40-pin connector on a 0.3 m pigtail; signals from the flight controller and bus; licence and pinout to confirm,DS-014 signals and power present,Met on paper (licence and pinout to confirm)
 R2,"About 52 s with gloves, no tools; pin state shown by a red band","60 s, no tools, pin visible",Met on paper (estimate)
-R3,"Vertical 147 N: lips 13x, screws 69x, side beam 6.8x; fore-aft 221 N on one pin 36x","3 x and 1.5 x at 2 g, rated 5 kg",Met on paper
+R3,"Vertical 147 N: lips 19x at the pockets, screws 69x, carbon side beam 8.3x; fore-aft 221 N on one pin 36x, carbon bearing 14x","3 x and 1.5 x at 2 g, rated 5 kg",Met on paper
 R4,100 W needs at most 5.6 A (6S at 18 V); switch limit 8 A; DS-014 pin rating to confirm,100 W continuous at bus voltage,Met on paper (pin rating to confirm)
 R5,Hottest part about 75 degC at 45 degC ambient; cold boot at -20 degC within the -40 degC rating,-20 to +45 degC,Met on paper
 R6,Sensors in range at 54 kPa; failsafe set per altitude band (Table 6); control margin is a frame property,"Stable control and failsafes at 5,000 m density",Met on paper (core); flight check needs a frame
 R7,"Model published: 47% (cold packs) and 70% (ColdCell) of sea-level hover time at 5,000 m and -20 degC",Within 15 % of measured,Model ready; accuracy shown only at TRL 4
-R8,"One core, one interface (Table 7); Lift needs 11 of 16 outputs and Range 10 of 16; parameter sets only",Same core in Lift and Range,Met by design
-R9,"0.996 kg estimated (carbon plate, 1.5 mm lid walls, pocketed rail bars; power leads in the frame harness)",See KWC-REQ-001 R9,Met on paper (4 g margin)
+R8,"One core, one interface (Table 7); Lift needs 11 of 16 outputs and Range 10 of 16; parameter sets only; since decision 33B, moving the core between frames also means changing the frame's soldered power harness at the board's pads (open decision O1)",Same core in Lift and Range,Met by design for firmware and fixing; harness change open (O1)
+R9,"0.99 kg estimated (carbon plate, pocketed rails, power leads in the frames' harness; decision 33B)","1.0 kg or less, excluding batteries",Met on paper (10 g margin; bought-part masses to confirm)
 R10,"Released PX4 (v1.15 or later), parameters and stock modules only; ColdCell reports over DroneCAN","Released PX4, no source change",Met by design
-R11,"USD 3,944.40 including ground station and spares","Value-engineering target USD 5,000","Under the target by USD 1,055.60"
+R11,"USD 3,946.80 including ground station and spares","Value-engineering target USD 5,000","Under the target by USD 1,053.20"

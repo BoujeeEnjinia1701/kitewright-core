@@ -1,4 +1,5 @@
-"""Kitewright Core general arrangement sheet KWC-DWG-001, Rev P2 (TRL 3, constructable design of KWC-DDR-002 with KWC-DDR-003).
+"""Kitewright Core general arrangement sheet KWC-DWG-001, Rev P2 (TRL 3, constructable design of KWC-DDR-002,
+lightened under Amish's decision 33B, KWC-DDR-003).
 
 Run from the repo root:  python cad/src/sheets.py
 Writes cad/drawings/KWC-DWG-001.svg, .pdf and .png from cad/src/model.py with .kit/drawing.py.
@@ -58,26 +59,27 @@ def main():
     iso = safe_project_views(Compound(list(C.values())), work / "iso")["iso"]
     s = Sheet(project="Kitewright Core", title="Kitewright Core shared avionics and payload core: general arrangement",
               dwg_no="KWC-DWG-001", rev="P2", author="Amish Chadha", date=DATE, scale=0.4, theme="technical",
-              material="Carbon fibre plate, 6061 aluminium rails, printed ASA lid, bought avionics per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
+              material="2 mm carbon plate, 6061 aluminium rail, printed ASA lid, bought avionics per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
               revisions=[("P1", "First issue, constructable design (KWC-DDR-002)", DATE, "AC"),
-                         ("P2", "Carbon plate, 1.5 mm lid, pocketed rails, leads to frame harness (KWC-DDR-003)", DATE, "AC")])
+                         ("P2", "Decision 33B: carbon plate, pocketed rails, leads to the frames (KWC-DDR-003)", DATE, "AC")])
     s.add_ortho(views)
     s.add_svg(iso, 276, 30, 140, 92, label="Isometric view", sublabel="Not to scale; with GNSS mast and antennas")
     L, W, t = P["plate"]
     fx, fy, fd = P["frame_holes"]
     lL, lW, lH, wall = P["lid"]
     s.add_notes("Main dimensions and interfaces (mm)", [
-        f"Core plate {L:.0f} x {W:.0f} x {t:.0f}, carbon fibre; top face is the datum, Z = 0",
+        f"Core plate {L:.0f} x {W:.0f} x {t:.0f}, carbon; top face is the datum, Z = 0",
         f"Frame bolts 4 x M4 on {2 * fx:.0f} x {2 * fy:.0f}; spacers {P['corner_spacer'][0]:.0f} OD x {P['corner_spacer'][2]:.0f}",
         f"Frame deck opening {P['deck_opening'][0]:.0f} x {P['deck_opening'][1]:.0f} (frame repos)",
-        f"Lid {lL:.0f} x {lW:.0f} x {lH:.0f}, flange {P['flange'][0]:.0f} x {P['flange'][1]:.0f}, 6 x M3 into bonded inserts",
+        f"Lid {lL:.0f} x {lW:.0f} x {lH:.0f}, {wall:.1f} walls, 6 x M3 flush studs from below",
         f"Rails {P['rail_x'][1] - P['rail_x'][0]:.0f} long: spacer {P['spacer_bar'][0]:.0f} x {P['spacer_bar'][1]:.0f}, lip {P['lip'][0]:.0f} x {P['lip'][1]:.0f}",
         f"Shoe {P['shoe'][0]:.0f} x {P['shoe'][1]:.0f} x {P['shoe'][2]:.0f}; gap to plate {D['shoe_gap']:.1f}; slides in from the rear",
         f"Lip overlap {D['overlap']:.0f} each side; payload neck within {2 * D['neck_halfwidth'] - 2:.0f} wide",
         f"Two locking pins, 5 mm, at X {P['pin_xy'][0]:.0f}, Y +/-{abs(P['pin_xy'][1]):.0f}",
         f"DS-014 pigtail through slot {P['slot'][1] - P['slot'][0]:.0f} x {P['slot'][2]:.0f} at X {P['slot'][0]:.0f} to {P['slot'][1]:.0f}",
         f"GNSS top {D['gnss_top']:.0f} above the plate; knob bottom {-D['knob_bot']:.0f} below",
-        "Rated 5 kg, 100 W; bus 18 to 60 V; power leads in the frame harness",
+        "Rated payload 5 kg; bus 18 to 60 V; payload 100 W",
+        "Frame power leads (Lift or Range) enter via 2 grommets; strain-relief bar",
         "Third-angle; X forward along the rail; front view from -Y",
     ], x=276, y=140, width=146)
     out = s.save(ROOT / "cad" / "drawings" / "KWC-DWG-001")

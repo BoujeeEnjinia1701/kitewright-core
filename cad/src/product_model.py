@@ -3,6 +3,8 @@
 Every part and every main dimension comes from cad/src/model.py (build_components); nothing is
 retyped here. This file only assigns names, colours, render materials, groups and exploded offsets,
 and adds an adult hand from .kit/context_parts.py for scale. No appearance deviations from the model.
+Since decision 33B (KWC-DDR-003) the plate is carbon fibre and the power leads belong to the frames, so
+the renders show the core without leads.
 Export the render scenes with:  python .kit/export_views.py OUTDIR
 """
 import math
@@ -18,7 +20,7 @@ from model import BOM, build_components, derived  # noqa: E402
 TITLE = "Kitewright Core: shared avionics, power and payload core for open drones"
 
 LOOK = {  # component: (name, colour, material, group)
-    "plate": ("Core plate, carbon fibre", "#2A2A2C", "painted", "shell"),
+    "plate": ("Core plate, carbon fibre", "#2F2F33", "painted", "shell"),
     "corner_spacers": ("Corner spacers", "#9CA3AF", "metal", "shell"),
     "spacer_left": ("Rail spacer bar, left", "#A8A8A4", "metal", "shell"),
     "spacer_right": ("Rail spacer bar, right", "#A8A8A4", "metal", "shell"),
@@ -38,8 +40,8 @@ LOOK = {  # component: (name, colour, material, group)
     "antennas": ("Antennas", "#1F2937", "rubber", "shell"),
     "mast": ("GNSS mast, carbon tube", "#2B2B2B", "painted", "shell"),
     "gnss": ("GNSS receiver and compass", "#1D4ED8", "painted", "shell"),
-    "strain_bar": ("Strain-relief bar, G10", "#65A30D", "painted", "shell"),
-    "strain_posts": ("Strain-relief bar posts", "#C0C0C0", "metal", "shell"),
+    "relief_bar": ("Strain-relief bar, G10", "#4D7C0F", "painted", "shell"),
+    "relief_standoffs": ("Strain-relief standoffs", "#C0C0C0", "metal", "shell"),
     "pigtail": ("DS-014 pigtail", "#111827", "rubber", "shell"),
     "plug": ("DS-014 plug", "#EAB308", "painted", "shell"),
     "fc_standoffs": ("Standoffs, 25 mm", "#C0C0C0", "metal", "internal"),
@@ -57,7 +59,7 @@ EXPLODE = {  # by BOM line, mm (as the concept exploded view)
     1: (0, 0, 0), 2: (0, 0, 60), 3: (0, 0, -45), 4: (0, 0, -80), 5: (0, 0, -62), 6: (60, 0, -45), 7: (0, 0, -125),
     8: (0, 0, -175), 9: (-60, 0, -230), 10: (0, 0, 260), 11: (0, 0, 200), 12: (0, 0, 150), 13: (0, 0, 125),
     14: (0, 0, 100), 15: (0, 0, 180), 16: (0, 0, 360), 17: (0, 0, 330), 18: (0, 0, 60), 19: (0, -170, 30),
-    21: (-150, 0, 60), 22: (0, 170, 30), 23: (-40, -150, 90), 24: (0, 0, 320), 25: (80, 0, -60), 26: (0, 0, 300),
+    21: (-90, 0, 120), 22: (0, 170, 30), 23: (-40, -150, 90), 24: (0, 0, 320), 25: (80, 0, -60), 26: (0, 0, 300),
     27: (-50, 0, 260),
 }
 

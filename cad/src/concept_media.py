@@ -1,4 +1,5 @@
-"""Kitewright Core concept media (TRL 3, constructable design of KWC-DDR-002), from the parametric model.
+"""Kitewright Core concept media (TRL 3, constructable design of KWC-DDR-002, lightened under decision 33B,
+KWC-DDR-003), from the parametric model.
 
 Run from the repo root:  python cad/src/concept_media.py
 Takes the components from cad/src/model.py and renders the media set with .kit/concept.py:
@@ -29,7 +30,7 @@ D = derived()
 C = build_components()
 
 STYLE = {  # BOM line: (colour, exploded offset in mm)
-    1: ("#A8A29E", (0, 0, 0)),
+    1: ("#3F3F46", (0, 0, 0)),
     2: ("#6B7280", (0, 0, 60)),
     3: ("#57534E", (0, 0, -45)),
     4: ("#78716C", (0, 0, -80)),
@@ -48,7 +49,7 @@ STYLE = {  # BOM line: (colour, exploded offset in mm)
     17: ("#374151", (0, 0, 330)),
     18: ("#16A34A", (0, 0, 60)),
     19: ("#7C3AED", (0, -170, 30)),
-    21: ("#DC2626", (-150, 0, 60)),
+    21: ("#4D7C0F", (-90, 0, 120)),
     22: ("#2563EB", (0, 170, 30)),
     23: ("#D97706", (-40, -150, 90)),
     24: ("#4B5563", (0, 0, 320)),
@@ -95,12 +96,12 @@ if __name__ == "__main__":
     P = parts()
     render_all(
         P, project="Kitewright Core", title="Shared avionics, power and payload core", dwg_no="KWC-DWG-010",
-        key_figures=["Core plate 240 x 150 mm; bolts to the frame on a 220 x 130 mm M4 pattern",
+        key_figures=["Carbon core plate 240 x 150 mm; bolts to the frame on a 220 x 130 mm M4 pattern",
                      "Lid 168 x 92 x 62 mm, rises through a 200 x 112 mm opening in the frame deck",
                      "Plain rail and two locking pins; payload shoe 184 x 128 x 5 mm",
-                     "Rated payload 5 kg; vertical design load 147 N, lips 13 x, screws 69 x",
+                     "Rated payload 5 kg; vertical design load 147 N, lips 19 x, screws 69 x",
                      "DS-014 40-pin pigtail; 100 W to the payload, 8 A switch",
-                     "Bus 18 to 60 V; core about 1.00 kg; USD 3,944 with ground station",
+                     "Bus 18 to 60 V; core about 0.99 kg; USD 3,947 with ground station",
                      "Hover time at 5,000 m, -20 C: 47 % cold packs, 70 % ColdCell (est.)"],
         scale_figure=False, context=[hand()],
         cut_exclude=("Antennas", "GNSS mast", "GNSS receiver and compass"),

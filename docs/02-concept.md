@@ -20,7 +20,7 @@ revisions:
 - version: "0.3"
   date: '2026-10-03'
   author: Amish Chadha
-  change: "Decision O1 option B (KWC-DDR-003): carbon plate, lighter lid and rails, power leads in each frame's harness; R9 met on paper"
+  change: Amish's decision 33B (KWC-DDR-003); carbon plate, power leads in the frames' harness; mass and cost from KWC-CAL-001 v0.2
 ---
 
 # Kitewright Core design precis
@@ -29,7 +29,7 @@ The shared core of the Kitewright open drone family: open autopilot, ColdCell po
 
 ## Summary
 
-Kitewright Core is a 240 x 150 mm carbon fibre plate that hangs under a frame's deck on four M4 bolts. On top, under a printed lid that rises through an opening in the deck, sit a Pixhawk-standard flight controller on vibration dampers, a power distribution board for two ColdCell packs, two independent 5.3 V supplies, a payload power switch, a telemetry radio and a control link receiver. A GNSS receiver stands on a removable mast above the lid. Under the plate is the payload mount: a plain rail of aluminium bars in which a 5 mm payload shoe slides from the rear to two front stops and is held by two spring locking pins, with the DS-014 power and data plug on a short pigtail. The same core, unchanged, flies Kitewright Lift and Kitewright Range with published parameter sets for three altitude bands. On paper it meets all eleven of its requirements; its estimated mass is 0.996 kg against the 1.0 kg of R9 (Figure 1, KWC-CAL-001, KWC-DDR-003).
+Kitewright Core is a 240 x 150 mm carbon fibre plate that hangs under a frame's deck on four M4 bolts. On top, under a printed lid that rises through an opening in the deck, sit a Pixhawk-standard flight controller on vibration dampers, a power distribution board for two ColdCell packs, two independent 5.3 V supplies, a payload power switch, a telemetry radio and a control link receiver. A GNSS receiver stands on a removable mast above the lid. Under the plate is the payload mount: a plain rail of aluminium bars in which a 5 mm payload shoe slides from the rear to two front stops and is held by two spring locking pins, with the DS-014 power and data plug on a short pigtail. The same core, unchanged, flies Kitewright Lift and Kitewright Range with published parameter sets for three altitude bands. On paper it meets all eleven requirements; its estimated mass is 0.99 kg against R9's 1.0 kg after Amish's decision 33B on 2026-10-03 (Figure 1, KWC-CAL-001).
 
 ![Figure 1. Kitewright Core concept, seen from the front right and above, with an adult hand for scale](../media/hero.png)
 
@@ -37,7 +37,7 @@ Kitewright Core is a 240 x 150 mm carbon fibre plate that hangs under a frame's 
 
 ## How it works
 
-ColdCell packs plug into the two AS150 inputs of the frame's harness, whose leads come in through the back of the lid and are soldered to the power distribution board's pads (KWC-DDR-003). The board joins the packs, measures total current with a Hall sensor and feeds the frame's speed controllers through the harness's two AS150 outputs. Two independent supplies, a digital power monitor and a backup supply, each turn the 18 to 60 V bus into 5.3 V for the flight controller, so one failure does not drop the avionics. A payload switch, enabled by the flight controller, feeds the bus to the payload's battery pins through the DS-014 pigtail with an 8 A limit.
+ColdCell packs plug into the two AS150 inputs of the frame's power harness, which Kitewright Lift or Range supplies and which enters the lid at the back (decision 33B). The power distribution board joins them, measures total current with a Hall sensor and feeds the frame's speed controllers through two AS150 outputs. Two independent supplies, a digital power monitor and a backup supply, each turn the 18 to 60 V bus into 5.3 V for the flight controller, so one failure does not drop the avionics. A payload switch, enabled by the flight controller, feeds the bus to the payload's battery pins through the DS-014 pigtail with an 8 A limit.
 
 The flight controller runs released PX4 with Kitewright parameter sets. It reads the packs' temperature and charge over DroneCAN from ColdCell's battery management system, the GNSS and compass on the mast, and the barometer on its own board, and it talks to the ground station over a 900 MHz class telemetry radio and to the pilot's handset over a long-range control link.
 
@@ -68,8 +68,8 @@ A payload carries a 184 x 128 x 5 mm aluminium shoe on its top. The operator pul
 | 15 | Flight controller, FMUv6X class | Runs PX4; triple IMU with heater; 16 outputs; Ethernet and CAN |
 | 16, 17 | GNSS receiver and compass, mast | Position and heading, 231 mm above the plate, clear of power wiring |
 | 18, 19 | Power distribution board, power modules | Pack inputs, frame outputs, current sensing, two 5.3 V supplies, payload switch |
-| 20 | Bonded flush inserts (16) | Flush threads under the plate where the shoe slides |
-| 21 | Strain-relief bar | Holds the frame harness's four power leads (two pack inputs, two frame outputs, 8 AWG with AS150 plugs; owned by each frame) behind the lid |
+| 20 | Clinch nuts (14) | Flush threads under the plate where the shoe slides |
+| 21 | Strain-relief bar | Holds the frame's four 8 AWG power leads behind the lid; the leads and AS150 plugs belong to each frame (decision 33B) |
 | 22, 23, 24 | Telemetry radio, control link receiver, antennas | Command, telemetry and control path |
 | 25 | DS-014 connector pair and pigtail | Power and data to the payload |
 | 26 to 29 | Safety switch, grommets, harness, fasteners | Arming safety, cable entries, cold-rated wiring |
@@ -88,7 +88,7 @@ A payload carries a 184 x 128 x 5 mm aluminium shoe on its top. The operator pul
 | Quantity | Value | Basis |
 | --- | --- | --- |
 | Rated payload | 5 kg; vertical design load 147 N | R3 |
-| Lowest strength factor | 6.8 (plate edge, spacer walls and pocketed lip as a beam between frame bolts) | CAL section A |
+| Lowest strength factor | 10.8 (plate edge as a beam between frame bolts) | CAL section A |
 | Fore-aft load on one pin alone | 221 N; 11.2 MPa shear in a 5 mm pin | CAL section A |
 | Payload swap with gloves | About 52 s, no tools | CAL section B |
 | Payload current for 100 W | 5.6 A at 18 V (6S), 2.2 A at 44.8 V | CAL section C |
@@ -96,17 +96,17 @@ A payload carries a 184 x 128 x 5 mm aluminium shoe on its top. The operator pul
 | Air density at 5,000 m | 0.736 kg/m³, 60 % of sea level | CAL section E |
 | Hover time at 5,000 m and -20 °C | 47 % of sea level with cold packs; 70 % with ColdCell | CAL section F |
 | Flight controller outputs used | Lift 11, Range 10, of 16 | CAL section G |
-| Core mass | About 0.996 kg (R9 met on paper, 4 g margin) | CAL section H |
-| Cost | USD 3,944.40 with ground station and spares | CAL section I |
+| Core mass | About 0.99 kg (R9 met on paper, 10 g margin) | CAL section H |
+| Cost | USD 3,946.80 with ground station and spares | CAL section I |
 
-Value-engineering target: USD 5,000. Estimated cost of the constructable design: USD 3,944.40 (USD 1,055.60 under the target).
+Value-engineering target: USD 5,000. Estimated cost of the constructable design: USD 3,946.80 (USD 1,053.20 under the target).
 
 ## Key design choices
 
 All decided under Amish's 2026-10-03 pre-approval; each is argued in KWC-DDR-001 or KWC-DDR-002 and indexed in the design decisions register, KWC-DEC-001.
 
 - **PX4 first, ArduPilot as the documented alternative** (D1), on a Pixhawk FMUv6X class controller (D2).
-- **One bus, 18 to 60 V** (D3), so a 6S Range and a Lift on 14S lithium-ion (its chosen ColdCell variant, KWL-DDR-003) or 16S LiFePO4 use the same board, supplies and switch; a full 14S pack reaches 58.8 V, close to the top of the window (KWC-DEC-001, O2).
+- **One bus, 18 to 60 V** (D3), so a 6S Range and a 12S or 16S Lift use the same board, supplies and switch.
 - **One payload class for version 1: 5 kg and 100 W** (D4).
 - **Plain rail, rear entry, front stops, pigtail plug** (D5); no bayonet and no blind-mating connector.
 - **Two independent locking pins** (D6), the conservative safety choice; either holds the payload alone.
@@ -148,4 +148,4 @@ This design is published as an open engineering reference. It is not certified e
 
 ## Open questions
 
-None for design. Facts that can only be settled with parts in hand (the DS-014 licence, pinout and pin rating, the controller's mounting pattern, plunger stroke) are listed under "To confirm when parts are bought" in KWC-DEC-001. R9 core mass was decided by Amish on 2026-10-03 (KWC-DDR-003); the bus headroom for the 14S lithium-ion pack is a new question for him (KWC-DEC-001, O2).
+None for design. Facts that can only be settled with parts in hand (the DS-014 licence, pinout and pin rating, the controller's mounting pattern, plunger stroke) are listed under "To confirm when parts are bought" in KWC-DEC-001. R9 core mass awaits Amish's decision (`docs/REVIEW.md`).
