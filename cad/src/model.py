@@ -22,7 +22,7 @@ from build123d import Box, Cylinder, Pos, Rot, Compound, export_step, export_stl
 ROOT = Path(__file__).resolve().parents[2]
 
 PARAMS = {
-    # core plate, aluminium 5052-H32 sheet
+    # core plate, 2 mm carbon fibre plate (KWC-DDR-003, O1 option B; was 2 mm 5052-H32 aluminium)
     "plate": (240.0, 150.0, 2.0),            # length (X), width (Y), thickness
     "frame_holes": (110.0, 65.0, 4.5),        # +/-X, +/-Y, diameter: the 220 x 130 mm frame pattern, M4
     "corner_spacer": (16.0, 4.5, 8.0),        # OD, bore, height
@@ -31,6 +31,10 @@ PARAMS = {
     "rail_x": (-100.0, 100.0),
     "spacer_bar": (10.0, 6.0),                # width (Y), height (Z); outer edge on the plate edge
     "lip": (30.0, 3.0),                       # width (Y), thickness
+    # pockets milled in the rail bars (KWC-DDR-003, O1 option B): spacer bar windows through the
+    #   height, walls each side; lip pockets from the underside inboard of the spacer; web kept
+    #   round every screw hole (from the hole centre)
+    "spacer_window_wall": 1.5, "lip_pocket": (2.0, 46.5, 63.5), "pocket_web": 6.5,
     "tape": 0.7,                              # UHMW-PE wear tape on the lip top face
     "shoe": (184.0, 128.0, 5.0),              # payload shoe length, width, thickness (6061 plate)
     "shoe_rear_x": -96.0,                     # rear edge of the shoe when locked home
@@ -49,7 +53,7 @@ PARAMS = {
     "screw_y": 70.0,
     "shoe_holes": ((-70.0, 30.0), (-70.0, -30.0), (50.0, 30.0), (50.0, -30.0)),
     # lid (printed ASA)
-    "lid": (168.0, 92.0, 62.0, 2.0),          # outer length, width, height, wall
+    "lid": (168.0, 92.0, 62.0, 1.5),          # outer length, width, height, wall (1.5 mm, KWC-DDR-003; was 2 mm)
     "flange": (180.0, 108.0, 3.0),
     "gasket": 1.0,
     "flange_screws_x": (-60.0, 0.0, 60.0), "flange_screws_y": 50.0,
@@ -70,8 +74,11 @@ PARAMS = {
     "radio": (29.0, 81.0, 14.0, 43.0, 13.0),         # x0, x1, y0, y1, height
     "pmods": (30.0, 80.0, -43.0, -17.0, 12.0),
     "rc_rx": (-2.0, 20.0, -43.0, -30.0, 6.0),
+    # frame harness leads (owned by Lift and Range since KWC-DDR-003; drawn here as context only)
     "leads_y": (-17.0, -9.0, 9.0, 17.0), "lead_d": 8.0, "lead_z": 18.0, "lead_out": 70.0,
-    "as150": (30.0, 16.0, 12.0),
+    # strain-relief bar for the frame harness leads, outside the lid flange at the rear: G10 strip
+    #   (X, Y, Z) on two 11 mm posts; x centre; post y
+    "strain_bar": (6.0, 64.0, 3.0), "strain_x": -95.0, "strain_post_y": 28.0, "strain_post": (5.5, 11.0),
     "pigtail_d": 7.0, "plug": (40.0, 14.0, 16.0), "plug_x": 79.0,
     # context only (the frame repos own these)
     "deck": (300.0, 200.0, 3.0),
@@ -79,6 +86,24 @@ PARAMS = {
 
 # Mass densities, g/cm3
 RHO = {"al": 2.70, "asa": 1.07, "g10": 1.85, "steel": 7.9, "uhmw": 0.94, "cfrp": 1.55}
+
+
+def strain_post_points(P=PARAMS):
+    return [(P["strain_x"], s * P["strain_post_y"]) for s in (1, -1)]
+
+
+def _rail_pockets_x(P=PARAMS):
+    """X ranges between the screw holes of one rail, keeping the web round each hole."""
+    xs = sorted(set(list(P["rail_screws_left"]) + list(P["block_screws_x"])))
+    x0, x1 = P["rail_x"]
+    w = P["pocket_web"]
+    edges = [x0 - w + 4.0] + xs + [x1 + w - 4.0]
+    out = []
+    for a, b in zip(edges, edges[1:]):
+        lo, hi = a + w, b - w
+        if hi - lo >= 8.0:
+            out.append((lo, hi))
+    return out
 
 
 def derived(P=PARAMS):
@@ -170,7 +195,7 @@ def build_components(P=PARAMS):
     fd = P["frame_holes"][2]
     plate = _holes(plate, frame_points(P), -t, 0, fd)
     plate = _holes(plate, rail_screw_points(P), -t, 0, 4.5)
-    plate = _holes(plate, flange_screw_points(P) + list(P["fc_standoffs"]) + list(P["pdb_standoffs"]), -t, 0, 4.22)
+    plate = _holes(plate, flange_screw_points(P) + list(P["fc_standoffs"]) + list(P["pdb_standoffs"]) + strain_post_points(P), -t, 0, 4.22)
     sx0, sx1, sw_ = P["slot"]
     plate = plate - box(sx0, sx1, -sw_ / 2, sw_ / 2, -t - 1, 1)
     C["plate"] = plate
@@ -191,6 +216,12 @@ def build_components(P=PARAMS):
         pts = [p for p in rail_screw_points(P) if p[1] * s > 0]
         bar = _holes(bar, [p for p in pts if abs(p[1]) == ys], sz0, sz1, 4.5)
         lip = _holes(lip, pts, lz0, lz1, 4.5)
+        ww = P["spacer_window_wall"]
+        pd_, py0_, py1_ = P["lip_pocket"]
+        for wx0, wx1 in _rail_pockets_x(P):
+            bar = bar - box(wx0, wx1, min(s * (sy0 + ww), s * (sy1 - ww)), max(s * (sy0 + ww), s * (sy1 - ww)), sz0 - 1, sz1 + 1)
+            if wx1 < P["pin_xy"][0] - 8 or wx0 > P["pin_xy"][0] + 8:
+                lip = lip - box(wx0, wx1, min(s * py0_, s * py1_), max(s * py0_, s * py1_), lz0 - 1, lz0 + pd_)
         lip = lip - cyl(P["pin_xy"][0], s * abs(P["pin_xy"][1]), lz0 - 1, lz1 + 1, P["pin_hole"])
         C[f"spacer_{side}"] = bar
         C[f"lip_{side}"] = lip
@@ -278,17 +309,14 @@ def build_components(P=PARAMS):
         r = r - box(-lL / 2 + 0.0, -lL / 2 + wall, -lW, lW, 0, 80)               # groove that takes the wall
         gro.append(r)
     C["grommets"] = _fuse(gro)
-    ld = P["lead_d"]
-    leads, plugs = [], []
-    ax_, ay_, az_ = P["as150"]
-    for k, y in enumerate(P["leads_y"]):
-        x_in = P["pdb_x"][0] + 6
-        x_out = -lL / 2 - P["lead_out"]
-        leads.append(xcyl(y, P["lead_z"], x_out, x_in, ld))
-        leads.append(cyl(x_in - ld / 2, y, P["pdb_standoff_h"] + P["pdb"][2], P["lead_z"], ld))   # drop to the board pad
-        plugs.append(box(x_out - ax_, x_out, y - ay_ / 4, y + ay_ / 4, P["lead_z"] - az_ / 2, P["lead_z"] + az_ / 2))
-    C["leads"] = _fuse(leads)
-    C["as150"] = _fuse(plugs)
+    # the leads belong to each frame's harness (KWC-DDR-003); only the strain-relief bar is core
+    bl, bw, bt = P["strain_bar"]
+    pd, ph = P["strain_post"]
+    sxp = P["strain_x"]
+    bar = box(sxp - bl / 2, sxp + bl / 2, -bw / 2, bw / 2, ph, ph + bt)
+    bar = _holes(bar, strain_post_points(P), ph, ph + bt, 3.4)
+    C["strain_bar"] = bar
+    C["strain_posts"] = _fuse([cyl(x, y, 0, ph, pd) for x, y in strain_post_points(P)])
 
     # 11 FC standoffs, dampers, damping plate, flight controller
     C["fc_standoffs"] = _fuse([cyl(x, y, 0, P["fc_standoff_h"], 5.5) for x, y in P["fc_standoffs"]])
@@ -349,6 +377,28 @@ def build_components(P=PARAMS):
     return C
 
 
+def harness_context(P=PARAMS):
+    """The frame's four power leads (Lift or Range harness, not part of this repo since KWC-DDR-003):
+    soldered to the power board pads, out through the rear grommets and over the strain-relief bar.
+    For checks and pictures only."""
+    D = derived(P)
+    lL = P["lid"][0]
+    ld = P["lead_d"]
+    ph, bt = P["strain_post"][1], P["strain_bar"][2]
+    z_out = ph + bt + ld / 2                                  # lead axis where it lies on the bar
+    x_in = P["pdb_x"][0] + 6
+    x_g = -lL / 2 - 3                                         # leaves the grommet
+    x_out = -lL / 2 - P["lead_out"]
+    leads = []
+    for y in P["leads_y"]:
+        leads.append(xcyl(y, P["lead_z"], x_g, x_in, ld))
+        leads.append(cyl(x_in - ld / 2, y, P["pdb_standoff_h"] + P["pdb"][2], P["lead_z"], ld))   # drop to the board pad
+        # bend down from the grommet height onto the bar, then out to the rear
+        leads.append(cyl(x_g - ld / 2, y, z_out - ld / 2, P["lead_z"] + ld / 2, ld))
+        leads.append(xcyl(y, z_out, x_out, x_g, ld))
+    return _fuse(leads)
+
+
 # BOM line numbers and names for the colored parts (match bom/bom.csv)
 BOM = {
     "plate": (1, "Core plate"),
@@ -368,11 +418,11 @@ BOM = {
     "radio": (22, "Telemetry radio"), "rc_rx": (23, "Control link receiver"), "antennas": (24, "Antennas"),
     "pigtail": (25, "DS-014 pigtail"), "plug": (25, "DS-014 plug"),
     "switch": (26, "Safety switch"), "grommets": (27, "Grommets (2)"),
-    "leads": (21, "Power leads"), "as150": (21, "AS150 plugs"),
+    "strain_bar": (21, "Strain-relief bar"), "strain_posts": (21, "Strain-relief bar posts"),
 }
 
 # material of each component, for mass (bought electronics use catalogue masses in the calculations)
-MATERIAL = {"plate": "al", "corner_spacers": "al", "spacer_left": "al", "spacer_right": "al", "lip_left": "al",
+MATERIAL = {"plate": "cfrp", "strain_bar": "g10", "strain_posts": "al", "corner_spacers": "al", "spacer_left": "al", "spacer_right": "al", "lip_left": "al",
             "lip_right": "al", "tape_left": "uhmw", "tape_right": "uhmw", "front_stops": "al", "pin_block": "al",
             "shoe": "al", "lid": "asa", "fc_plate": "g10", "jam_nut": "steel"}
 
@@ -404,14 +454,15 @@ TOUCH = [  # pairs that must touch (a face rests on a face or a part sits in a b
     ("gasket", "plate"), ("lid", "gasket"), ("fc_standoffs", "plate"), ("dampers", "fc_standoffs"),
     ("fc_plate", "dampers"), ("fc", "fc_plate"), ("pdb_standoffs", "plate"), ("pdb", "pdb_standoffs"),
     ("radio", "plate"), ("pmods", "plate"), ("rc_rx", "plate"), ("antennas", "lid"), ("mast", "lid"),
-    ("gnss", "mast"), ("switch", "lid"), ("grommets", "lid"), ("leads", "grommets"), ("leads", "as150"), ("leads", "pdb"),
-    ("pigtail", "plug"),
+    ("gnss", "mast"), ("switch", "lid"), ("grommets", "lid"), ("pigtail", "plug"),
+    ("strain_posts", "plate"), ("strain_bar", "strain_posts"),
 ]
+HARNESS_TOUCH = ["grommets", "pdb", "strain_bar"]   # the frame harness leads must reach these
 GAPS = [  # pairs that must stay apart by at least this much (mm)
     ("shoe", "plate", 0.25), ("shoe", "spacer_left", 0.9), ("shoe", "spacer_right", 0.9),
     ("fc", "lid", 5.0), ("pdb", "fc_plate", 5.0), ("radio", "lid", 0.9), ("pmods", "lid", 0.9),
     ("rc_rx", "fc_standoffs", 1.0), ("pigtail", "shoe", 1.5), ("plug", "lip_left", 10.0), ("plug", "lip_right", 10.0),
-    ("leads", "fc_standoffs", 1.0), ("pdb", "fc_standoffs", 1.0),
+    ("pdb", "fc_standoffs", 1.0), ("strain_posts", "gasket", 1.0), ("strain_bar", "lid", 1.0),
 ]
 WEB = 0.6   # mm: a sliver thinner than this would not survive cutting or printing
 
@@ -444,6 +495,24 @@ def check(P=PARAMS, verbose=True):
         d = C[a].distance_to(C[b])
         if d < g:
             bad.append(f"too close {a} / {b}: {d:.2f} mm < {g} mm")
+        else:
+            ok += 1
+    # frame harness context: reaches the board pads, the grommets and the bar; clear of the avionics
+    har = harness_context(P)
+    for k in HARNESS_TOUCH:
+        if har.distance_to(C[k]) > 0.05:
+            bad.append(f"frame harness leads do not reach {k}")
+        else:
+            ok += 1
+    for k in keys:
+        if k in ("grommets", "pdb", "strain_bar", "lid"):
+            continue
+        try:
+            v = (har & C[k]).volume
+        except Exception:
+            v = 0.0
+        if v > 1e-3:
+            bad.append(f"overlap frame harness leads / {k}: {v:.3f} mm3")
         else:
             ok += 1
     # deck context: nothing of the core may touch the deck except the corner spacers

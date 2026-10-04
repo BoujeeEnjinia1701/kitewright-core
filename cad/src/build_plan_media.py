@@ -18,7 +18,7 @@ sys.path[:0] = [str(ROOT / ".kit"), str(ROOT / "cad" / "src")]
 import build_views as bv  # noqa: E402
 from build_views import Part  # noqa: E402
 from build123d import Cone, Pos  # noqa: E402
-from model import PARAMS as P, build_components, derived, deck_context, box, cyl, rail_screw_points, flange_screw_points, frame_points  # noqa: E402
+from model import PARAMS as P, build_components, derived, deck_context, harness_context, box, cyl, rail_screw_points, flange_screw_points, frame_points  # noqa: E402
 
 OUT = ROOT / "docs" / "05-build-plan"
 DWG = ROOT / "cad" / "drawings"
@@ -26,7 +26,7 @@ DATE = "2026-10-03"
 D = derived(P)
 C = build_components(P)
 
-COL = {"plate": "#A8A29E", "spacer": "#57534E", "stop": "#44403C", "lip": "#78716C", "tape": "#E7E5E4",
+COL = {"plate": "#3F3F46", "bar": "#65A30D", "spacer": "#57534E", "stop": "#44403C", "lip": "#78716C", "tape": "#E7E5E4",
        "block": "#0E7490", "plunger": "#C2410C", "nut": "#374151", "pdb": "#16A34A", "standoff": "#9CA3AF",
        "damper": "#111827", "fcplate": "#65A30D", "fc": "#0F766E", "radio": "#2563EB", "pmods": "#7C3AED",
        "rx": "#D97706", "pigtail": "#EAB308", "gasket": "#1F2937", "lid": "#E5E7EB", "grommet": "#111827",
@@ -54,7 +54,6 @@ def made():
         "blocks": part("Pin blocks (2)", C["pin_block"], COL["block"]),
         "plungers": part("Locking pins (2) and jam nuts", fuse("plunger", "jam_nut"), COL["plunger"]),
         "pdb": part("Power board on 8 mm standoffs", fuse("pdb", "pdb_standoffs"), COL["pdb"]),
-        "leads": part("Power leads (4)", C["leads"], COL["leads"]),
         "fcmount": part("25 mm standoffs and dampers (4)", fuse("fc_standoffs", "dampers"), COL["damper"]),
         "fcplate": part("Damping plate", C["fc_plate"], COL["fcplate"]),
         "fc": part("Flight controller", C["fc"], COL["fc"]),
@@ -63,14 +62,14 @@ def made():
         "gasket": part("Lid gasket", C["gasket"], COL["gasket"]),
         "lid": part("Lid with grommets and safety switch", fuse("lid", "grommets", "switch"), COL["lid"]),
         "top": part("Antennas, GNSS mast and receiver", fuse("antennas", "mast", "gnss"), COL["gnss"]),
-        "as150": part("AS150 plugs (4)", C["as150"], COL["as150"]),
+        "bar": part("Strain-relief bar on two posts", fuse("strain_bar", "strain_posts"), COL["bar"]),
         "corner": part("Corner spacers (4)", C["corner_spacers"], COL["corner"]),
         "shoe": part("Payload shoe", C["shoe"], COL["shoe"]),
     }
 
 
-ORDER = ["plate", "spacers", "stops", "lips", "blocks", "plungers", "pdb", "leads", "fcmount", "fcplate", "fc",
-         "modules", "pigtail", "gasket", "lid", "top", "as150", "corner", "shoe"]
+ORDER = ["plate", "spacers", "stops", "lips", "blocks", "plungers", "pdb", "fcmount", "fcplate", "fc",
+         "modules", "pigtail", "gasket", "lid", "top", "bar", "corner", "shoe"]
 
 
 # ----------------------------------------------------------------- fasteners drawn for the joint pictures
@@ -92,21 +91,26 @@ def rail_fixings(points):
     return sh
 
 
+def insert(x, y):
+    """Bonded flush M3 insert: body through the 4.2 mm hole, flush underneath, 0.8 mm flange on top."""
+    return (cyl(x, y, -P["plate"][2], 0.0, 4.2) + cyl(x, y, 0.0, 0.8, 7.0)) - cyl(x, y, -3, 2, 3.0)
+
+
 def m3_flange_fixing(x, y):
-    head = cyl(x, y, D["lid_z"][0] + P["flange"][2], D["lid_z"][0] + P["flange"][2] + 3.0, 5.5)
-    shank = cyl(x, y, -P["plate"][2], D["lid_z"][0] + P["flange"][2], 3.0)
-    clinch = cyl(x, y, -P["plate"][2], 0.0, 4.2) - cyl(x, y, -3, 1, 3.0)
-    return head + shank, clinch
+    z0 = D["lid_z"][0]
+    head = cyl(x, y, z0 + P["flange"][2], z0 + P["flange"][2] + 3.0, 5.5)
+    shank = cyl(x, y, 0.8, z0 + P["flange"][2], 3.0)
+    return head + shank, insert(x, y)
 
 
 # ----------------------------------------------------------------- overview
 def overview():
     M = made()
     off = {"plate": (0, 0, 0), "spacers": (0, 0, -60), "stops": (90, 0, -60), "lips": (0, 0, -110),
-           "blocks": (-170, 0, -150), "plungers": (-170, 0, -230), "pdb": (0, 0, 60), "leads": (-170, 0, 60),
+           "blocks": (-170, 0, -150), "plungers": (-170, 0, -230), "pdb": (0, 0, 60), "bar": (-170, 0, 60),
            "fcmount": (0, 0, 120), "fcplate": (0, 0, 170), "fc": (0, 0, 210), "modules": (60, 0, 90),
            "pigtail": (150, 0, -40), "gasket": (0, 0, 310), "lid": (0, 0, 380), "top": (0, 0, 500),
-           "as150": (-250, 0, 60), "corner": (120, 120, 300), "shoe": (-120, 0, -300)}
+           "corner": (120, 120, 300), "shoe": (-120, 0, -300)}
     parts = []
     for k in ORDER:
         p = M[k]
@@ -126,19 +130,20 @@ def sheets():
     fx, fy, fd = P["frame_holes"]
     out.append(bv.component_sheet(
         Part("Core plate", C["plate"], COL["plate"]), [M["lips"], M["lid"], M["spacers"]],
-        dwg_no="KWC-DWG-101", title="Kitewright Core plate: making sketch", material="Aluminium sheet 2 mm, 5052-H32",
-        notes=[f"Blank {L:.0f} x {W:.0f} mm from 2 mm 5052 sheet. Origin at the centre;",
+        dwg_no="KWC-DWG-101", title="Kitewright Core plate: making sketch", material="Carbon fibre plate 2 mm, quasi-isotropic",
+        notes=[f"Cut {L:.0f} x {W:.0f} mm from 2 mm carbon plate (waterjet or CNC service);",
+               "  origin at the centre;",
                "  X is positive toward the front, Y to the left; top face is the datum.",
                f"Frame holes 4.5 mm at {fx:.0f} mm each side of centre, {fy:.0f} mm each side (4).",
                "Rail holes 4.5 mm on lines 70 mm each side: at -93, -75, -30, 30, 90",
                "  mm along X on both lines; stop holes 4.5 mm at 95 mm, 55 mm each side.",
-               "Clinch nut holes 4.22 mm (14): lid flange at -60, 0, 60 mm, 50 each",
+               "Insert holes 4.22 mm (16): lid flange at -60, 0, 60 mm, 50 each",
                "  side; 25 mm standoffs at -75 and 25 mm, 30 each side; 8 mm",
-               "  standoffs at -66 and 6 mm, 21 each side.",
-               "Cable slot 12 x 24 mm from 70 to 82 mm along X, on the centre line:",
-               "  drill 6 mm in the corners, cut between, file square.",
-               "Press M3 clinch nuts in from the UNDERSIDE with a vice and two flat",
-               "  plates; they must sit flush underneath (the shoe slides there).",
+               "  standoffs at -66 and 6 mm, 21 each side; bar posts -95 mm, 28 each side.",
+               "Cable slot 12 x 24 mm from 70 to 82 mm along X, on the centre line.",
+               "Seal every cut edge with thin epoxy; wear a mask (carbon dust).",
+               "Bond M3 flush inserts with structural epoxy, flange on top, body",
+               "  flush underneath (the shoe slides 0.3 mm below the plate).",
                "Check: run a straight edge across the underside; nothing proud."],
         inset_view=(-30, -58), **base))
     sb = C["spacer_left"]
@@ -151,6 +156,9 @@ def sheets():
                "Lay it 6 mm side down. Mark a centre line 5 mm from each edge.",
                "Holes 4.5 mm on the centre line at 7, 25, 70, 130 and 190 mm",
                "  from the rear end (X = -93, -75, -30, 30 and 90 mm).",
+               "Mill three windows 6 mm wide through the 6 mm height, leaving",
+               "  1.5 mm walls: 31.5 to 63.5, 76.5 to 123.5, 136.5 to 183.5 mm",
+               "  from the rear end (6.5 mm of web from each hole centre).",
                "Deburr; break every edge lightly. The outer 6 mm face lines up",
                "  with the long edge of the core plate.",
                "Check: lay it under the plate and look through all five holes."],
@@ -184,6 +192,8 @@ def sheets():
                "Pin hole 5.5 mm at 16 mm from the rear end, 20 mm from the outer",
                "  edge. Countersink the screw holes 90 deg from the UNDERSIDE so",
                "  the M4 heads sit flush; the left and right lips are mirror images.",
+               "Underside pockets 2 mm deep, 1.5 to 18.5 mm from the INNER edge,",
+               "  at the same X as the spacer windows (1 mm skin left).",
                "Stick 0.7 mm UHMW tape on the top face from the inner edge to 1 mm",
                "  short of the spacer, rear end to the stop; cut out the pin hole.",
                "Check: a 5 mm shoe offcut slides between lip and plate with",
@@ -229,7 +239,7 @@ def sheets():
         material="3D printed ASA, light grey, 0.2 mm layers, 4 walls, 25 % infill",
         notes=["Print open side down on the flange; no supports except the two",
                "  rear grommet holes and the service opening (bridges).",
-               "Outside 168 x 92 x 62 mm, 2 mm walls and top; flange 180 x 108 x",
+               "Outside 168 x 92 x 62 mm, 1.5 mm walls and top; flange 180 x 108 x",
                "  3 mm with six 3.4 mm holes, 50 mm each side, at -60, 0, 60 mm.",
                "Top: mast boss 22 mm across, 14 mm tall, 10.2 mm socket 12 mm",
                "  deep, at 55 mm behind centre; heat-set M3 insert in its side",
@@ -310,22 +320,22 @@ def joints():
     # 5 flight controller damping, cut through a damper
     reg = box(-95, -55, 30, 50, -4, 60)
     fix = cyl(-75, 30, D["fc_plate_z"], D["fc_plate_z"] + P["fc_plate"][2] + 3, 3.0) + cyl(-75, 30, D["fc_plate_z"] + P["fc_plate"][2], D["fc_plate_z"] + P["fc_plate"][2] + 3, 5.5)
-    clinch = cyl(-75, 30, -P["plate"][2], 0.0, 4.2) - cyl(-75, 30, -3, 1, 3.0)
-    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("M3 clinch nut", clinch, COL["screw"]),
+    clinch = insert(-75, 30)
+    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("M3 bonded flush insert", clinch, COL["screw"]),
                                 ("25 mm standoff", C["fc_standoffs"], COL["standoff"]), ("Silicone damper", C["dampers"], COL["damper"]),
                                 ("Damping plate", C["fc_plate"], COL["fcplate"]), ("Flight controller", C["fc"], COL["fc"]),
                                 ("M3 screw in the damper", fix, COL["screw"])], reg),
                         OUT / "joint-05.png", "Joint 5: flight controller damping, cut through a damper",
-                        subtitle="Standoff screws into the flush clinch nut; the plate floats on four silicone dampers",
+                        subtitle="Standoff screws into the bonded flush insert; the plate floats on four silicone dampers",
                         elev=12, azim=-62))
     # 6 lid flange to plate
     scr, cl = m3_flange_fixing(-60.0, 50.0)
     reg = box(-80, -60, 30, 62, -4, 18)
-    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("M3 clinch nut (flush below)", cl, COL["screw"]),
+    out.append(bv.joint(window([("Core plate", C["plate"], COL["plate"]), ("M3 bonded insert (flush below)", cl, COL["screw"]),
                                 ("Gasket", C["gasket"], COL["gasket"]), ("Lid flange and wall", C["lid"], COL["lid"]),
                                 ("M3 cap screw", scr, COL["screw"])], reg),
                         OUT / "joint-06.png", "Joint 6: lid flange to plate, cut through a screw",
-                        subtitle="Six M3 screws into clinch nuts; the 1 mm foam gasket seals the flange", elev=14, azim=-35))
+                        subtitle="Six M3 screws into bonded inserts; the 1 mm foam gasket seals the flange", elev=14, azim=-35))
     # 7 core to frame deck (the deck belongs to the frame repos)
     fx, fy, _ = P["frame_holes"]
     reg = box(92, fx, 45, 75, -14, 18)
@@ -361,9 +371,9 @@ def steps():
     go(2, [M["blocks"], M["plungers"]], "pin blocks and locking pins",
        "Blocks under the lips at the rear, M4 x 35 screws; screw each plunger in until its pin is 0.5 mm short of the plate",
        [(0, 0, -60), (0, 0, -140)], **below)
-    go(3, [M["pdb"], M["leads"]], "power board and its leads",
-       "8 mm standoffs into the clinch nuts; solder the four leads to the board pads (no plugs yet)",
-       [(0, 0, 60), (-120, 0, 40)], elev=30, azim=-50)
+    go(3, [M["pdb"]], "power board",
+       "8 mm standoffs into the bonded inserts; the four power pads stay bare for the frame harness leads",
+       [(0, 0, 60)], elev=30, azim=-50)
     go(4, [M["fcmount"], M["fcplate"], M["fc"]], "flight controller on its dampers",
        "25 mm standoffs, dampers, damping plate; controller on M3 nylon screws, arrow forward",
        [(0, 0, 60), (0, 0, 100), (0, 0, 140)], elev=30, azim=-50)
@@ -372,11 +382,13 @@ def steps():
     go(6, [M["pigtail"]], "DS-014 pigtail",
        "Cable down through the slot, clamped to the plate; plug left hanging below", [(0, 0, 80)], elev=30, azim=-50)
     go(7, [M["gasket"], M["lid"]], "gasket and lid",
-       "Thread the leads through the rear grommets, lower the lid, six M3 screws", [(0, 0, 80), (0, 0, 160)], elev=30, azim=-50)
+       "Lower the lid onto the gasket, six M3 screws", [(0, 0, 80), (0, 0, 160)], elev=30, azim=-50)
     go(8, [M["top"]], "antennas, GNSS mast and receiver",
        "SMA bulkheads through the lid top; mast into its socket, thumbscrew", [(0, 0, 120)], elev=24, azim=-50)
-    go(9, [M["as150"]], "AS150 plugs on the leads",
-       "Solder and heat-shrink; packs plug into the inputs, the frame into the outputs", [(-80, 0, 0)], elev=24, azim=-50)
+    harness = part("Frame harness leads (Lift or Range, not in this repo)", harness_context(P), COL["leads"])
+    go(9, [M["bar"]], "strain-relief bar; frame harness leads",
+       "Two posts and a G10 bar behind the lid; the frame's own four leads are soldered to the pads and tied to it",
+       [(-80, 0, 40)], context=[harness], elev=24, azim=-50)
     go(10, [M["shoe"]], "payload shoe in from the rear (payload swap)",
        "Pull and twist both pins out, slide to the front stops, twist back: both pins snap in, no red showing",
        [(-260, 0, 0)], elev=-22, azim=-40)

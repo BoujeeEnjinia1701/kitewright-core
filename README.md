@@ -4,7 +4,7 @@
 
 ![TRL 3](https://img.shields.io/badge/TRL-3%20of%209-0F766E) ![Hardware: CERN-OHL-S-2.0](https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-111827) ![Software: MIT](https://img.shields.io/badge/software-MIT-111827) [![REUSE compliant](https://github.com/BoujeeEnjinia1701/kitewright-core/actions/workflows/reuse.yml/badge.svg)](https://github.com/BoujeeEnjinia1701/kitewright-core/actions/workflows/reuse.yml)
 
-**Area:** Aerial robotics · **TRL:** 3 of 9 (proof of concept on paper) · **Value-engineering target:** USD 5,000; estimated cost USD 3,940.60 · **Difficulty:** 4 of 5 · **Difficulty:** 4 of 5
+**Area:** Aerial robotics · **TRL:** 3 of 9 (proof of concept on paper) · **Value-engineering target:** USD 5,000; estimated cost USD 3,944.40 · **Difficulty:** 4 of 5
 
 The shared core of the Kitewright open drone family: open autopilot, ColdCell power bus and one standard payload mount.
 
@@ -60,7 +60,7 @@ Full design precis: [docs/02-concept.md](docs/02-concept.md) · Requirements: [d
 
 ![Concept, seen from the front right and above, with an adult hand for scale](media/hero.png)
 
-At TRL 3 the core meets ten of its eleven requirements on paper: the rail and two locking pins carry a 5 kg payload with factors of 10 or more, a gloved payload swap takes about 52 s, 100 W reaches the payload, and the avionics stay within their ratings from -20 to +45 °C. Its estimated mass of 1.27 kg misses R9 and is set out for Amish's decision in [docs/REVIEW.md](docs/REVIEW.md). The hover-time model gives 47 % of sea-level hover time at 5,000 m and -20 °C with cold packs and 70 % with ColdCell packs (estimates).
+At TRL 3 the core meets all eleven of its requirements on paper: the rail and two locking pins carry a 5 kg payload with factors of 6.8 or more, a gloved payload swap takes about 52 s, 100 W reaches the payload, and the avionics stay within their ratings from -20 to +45 °C. With a carbon fibre plate, 1.5 mm lid walls, pocketed rail bars and the power leads moved to each frame's harness (Amish's decision, KWC-DDR-003), the core weighs an estimated 0.996 kg against the 1.0 kg of R9. The hover-time model gives 47 % of sea-level hover time at 5,000 m and -20 °C with cold packs and 70 % with ColdCell packs (estimates).
 
 ## Key components
 

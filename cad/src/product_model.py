@@ -18,7 +18,7 @@ from model import BOM, build_components, derived  # noqa: E402
 TITLE = "Kitewright Core: shared avionics, power and payload core for open drones"
 
 LOOK = {  # component: (name, colour, material, group)
-    "plate": ("Core plate, 5052 aluminium", "#B8B8B5", "metal", "shell"),
+    "plate": ("Core plate, carbon fibre", "#2A2A2C", "painted", "shell"),
     "corner_spacers": ("Corner spacers", "#9CA3AF", "metal", "shell"),
     "spacer_left": ("Rail spacer bar, left", "#A8A8A4", "metal", "shell"),
     "spacer_right": ("Rail spacer bar, right", "#A8A8A4", "metal", "shell"),
@@ -38,8 +38,8 @@ LOOK = {  # component: (name, colour, material, group)
     "antennas": ("Antennas", "#1F2937", "rubber", "shell"),
     "mast": ("GNSS mast, carbon tube", "#2B2B2B", "painted", "shell"),
     "gnss": ("GNSS receiver and compass", "#1D4ED8", "painted", "shell"),
-    "leads": ("Power leads", "#B91C1C", "rubber", "shell"),
-    "as150": ("AS150 plugs", "#F59E0B", "painted", "shell"),
+    "strain_bar": ("Strain-relief bar, G10", "#65A30D", "painted", "shell"),
+    "strain_posts": ("Strain-relief bar posts", "#C0C0C0", "metal", "shell"),
     "pigtail": ("DS-014 pigtail", "#111827", "rubber", "shell"),
     "plug": ("DS-014 plug", "#EAB308", "painted", "shell"),
     "fc_standoffs": ("Standoffs, 25 mm", "#C0C0C0", "metal", "internal"),

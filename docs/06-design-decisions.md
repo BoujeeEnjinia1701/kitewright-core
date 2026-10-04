@@ -3,7 +3,7 @@ doc_id: KWC-DEC-001
 title: Kitewright Core design decisions register
 project: Kitewright Core
 doc_type: Design decisions register
-version: "0.1"
+version: "0.2"
 status: Draft
 date: '2026-10-03'
 author: Amish Chadha
@@ -13,6 +13,10 @@ revisions:
     date: '2026-10-03'
     author: Amish Chadha
     change: Register opened at TRL 3; decisions D1 to D15 and C1 to C10 made under Amish's 2026-10-03 pre-approval; R9 core mass open for Amish
+  - version: "0.2"
+    date: '2026-10-03'
+    author: Amish Chadha
+    change: O1 decided by Amish (option B, KWC-DDR-003) and moved to Decisions made; new open decision O2 (bus headroom for the 14S lithium-ion pack); T10 added for the bonded inserts; value engineering updated
 ---
 
 # Kitewright Core design decisions register
@@ -23,11 +27,11 @@ Every design decision still to be made, and every decision made, in one place. E
 
 ## Open decisions
 
-Proposed, awaiting Amish. Requirements not met on paper are not decided under the pre-approval; each is set out with options in `docs/REVIEW.md`, TRL 3 section, Decisions for Amish.
+Proposed, awaiting Amish. O1 (R9 core mass) was decided on 2026-10-03 and is under Decisions made. O2 was raised while applying that round of decisions.
 
 | # | Decision needed | Options | Recommendation | Affects in the build | Source |
 | --- | --- | --- | --- | --- | --- |
-| O1 | R9 core mass: the constructable core is estimated at 1.27 kg | A: lighter structure (carbon plate, 1.5 mm lid walls, pocketed rail bars): 1.12 kg, about USD 60 more. B: A plus the four power leads and AS150 plugs moved to each frame's harness: 0.99 kg, about USD 60 more on the core, USD 60 of leads moving to the frames. C: keep the design as drawn: 1.27 kg, no cost change | B (proposed, awaiting Amish) | Plate material and making sketch KWC-DWG-101; lid print settings; pockets in the rail bars; steps 3, 7 and 9 of the build plan | KWC-CAL-001 section H; `docs/REVIEW.md` |
+| O2 | Bus headroom for the 14S lithium-ion ColdCell pack Kitewright Lift adopted (KWL-DDR-003). State: a full 14S pack reads 58.8 V (a full 16S LiFePO4 pack 58.4 V); the power board and power modules (lines 18, 19) are rated 60 V, so 1.2 V is left for the short voltage rise when eight motor controllers brake | A: specify the power board and both power modules for a 75 V class rating (14S to 16S class parts; estimate about USD 40 more, mass unchanged at catalogue class). B: keep 60 V parts and have the Lift packs charged only to 4.10 V a cell (57.4 V; about 3 % less energy, so Lift hover time drops by about 0.6 min). C: keep 60 V parts and full charge, and rely on the controllers' braking limits | **A**: it restores a margin of 16 V at no cost in hover time, and the price difference is small against the core. Proposed, awaiting Amish | BOM lines 18 and 19 (specification and price); bus window text in KWC-REQ-001 | KWC-CAL-001 section C [C3]; `docs/REVIEW.md`, Session 2026-10-03 round 2 |
 
 ## To confirm when parts are bought
 
@@ -41,11 +45,12 @@ Proposed, awaiting Amish. Requirements not met on paper are not decided under th
 | T6 | Power board, power module and radio footprints | Layout inside the lid; clearances checked in the model | `cad/src/model.py` |
 | T7 | Clinch nut fit in 2 mm 5052 sheet | Flush seating under the plate | KWC-DWG-101 |
 | T8 | Telemetry band and power allowed at the first site (India: 865 to 867 MHz candidate) | Radio choice (D10) | KWC-DDR-001 |
-| T9 | Bought-part masses | R9 estimate uses catalogue class values | KWC-CAL-001 section H |
+| T9 | Bought-part masses | R9 estimate uses catalogue class values, and the R9 margin is only 4 g | KWC-CAL-001 section H |
+| T10 | Bonded flush insert type, bond strength in 2 mm carbon plate and the epoxy's rating from -20 to +45 °C | The inserts hold the lid, the avionics standoffs and the strain-relief bar; they replace clinch nuts, which carbon cannot take | KWC-DDR-003 |
 
 ## Value engineering
 
-Value-engineering target: USD 5,000 (a hypothetical control target, not a limit). Estimated cost of the constructable design: USD 3,940.60 (USD 1,059.40 under the target). Main cost drivers: the rugged ground station tablet (USD 900), the spares kit (USD 560), the telemetry radio pair (USD 400), the flight controller (USD 390), the field charger (USD 350) and the control handset (USD 250); the made parts cost under USD 70 in all. Savings worth trying: a tablet the team already owns if it is rated to -20 °C, a control link with built-in MAVLink telemetry in place of the separate radio pair (about USD 400), and a smaller spares kit once the first core has flown.
+Value-engineering target: USD 5,000 (a hypothetical control target, not a limit). Estimated cost of the constructable design: USD 3,944.40 (USD 1,055.60 under the target). Decision O1 added USD 59.80 to the core (mostly the carbon plate, USD 44 more) and moved USD 56 of leads and plugs to the frames. Main cost drivers: the rugged ground station tablet (USD 900), the spares kit (USD 560), the telemetry radio pair (USD 400), the flight controller (USD 390), the field charger (USD 350) and the control handset (USD 250); the made parts cost under USD 70 in all. Savings worth trying: a tablet the team already owns if it is rated to -20 °C, a control link with built-in MAVLink telemetry in place of the separate radio pair (about USD 400), and a smaller spares kit once the first core has flown.
 
 ## Decisions made
 
@@ -69,3 +74,6 @@ All decided by Amish under his pre-approval of 2026-10-03: "start with the first
 | 2026-10-03 | D14: log every flight; remote ID module on CAN when required | Amish (pre-approval) | KWC-DDR-001 |
 | 2026-10-03 | D15: publish the hover-time model | Amish (pre-approval) | KWC-DDR-001 |
 | 2026-10-03 | C1 to C10: design for construction (rail, pins, stops, pigtail, clinch nuts, frame fixing, damping, lid, leads, mast) | Amish (pre-approval) | KWC-DDR-002 |
+| 2026-10-03 | O1 (R9 core mass), option B: 2 mm carbon fibre plate, 1.5 mm lid walls, pocketed rail bars, and the pack and frame leads with AS150 plugs moved to each frame's harness; the core keeps solder pads and a strain-relief bar. Core 0.996 kg, R9 met on paper; every strength factor above 5 | Amish, 2026-10-03: "i approve all of the 47 recommendations provided by you. Execute them." | KWC-DDR-003 |
+
+Change log: 2026-10-03, O1 moved from Open decisions to Decisions made (option B); O2 and T10 added.

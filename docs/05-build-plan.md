@@ -3,7 +3,7 @@ doc_id: KWC-BLD-001
 title: Kitewright Core prototype build plan
 project: Kitewright Core
 doc_type: Build plan
-version: "0.1"
+version: "0.2"
 status: Draft
 date: '2026-10-03'
 author: Amish Chadha
@@ -13,6 +13,10 @@ revisions:
     date: '2026-10-03'
     author: Amish Chadha
     change: First build plan; design made constructable (KWC-DDR-002)
+  - version: "0.2"
+    date: '2026-10-03'
+    author: Amish Chadha
+    change: "Carbon fibre plate with bonded flush inserts, pocketed rail bars, 1.5 mm lid walls; power leads and AS150 plugs moved to the frame harness, strain-relief bar added (KWC-DDR-003)"
 ---
 
 # Kitewright Core prototype build plan
@@ -25,13 +29,13 @@ revisions:
 
 *Figure 1. Every component of the core, pulled apart and numbered in build order.*
 
-The prototype is one Kitewright Core: a 240 x 150 mm aluminium plate with the avionics on top under a printed lid, and the payload rail and two locking pins underneath, plus one payload shoe. Figure 1 shows its 19 components in the order you make or fit them. Eight are made in a small workshop: the core plate, the rail spacer bars, front stops, rail lips, pin blocks, payload shoe, lid and damping plate. Everything else is bought and fitted: the flight controller, GNSS receiver, power board and modules, radios, antennas, the DS-014 pigtail, the locking pins (indexing plungers), dampers, standoffs, clinch nuts, leads and connectors. The work is sawing, drilling, tapping and filing aluminium sheet and bar, pressing clinch nuts, one 3D print, cutting a glass-epoxy plate, and soldering heavy power leads. The parts cost about USD 1,760 for the airborne core from the bill of materials; the ground station kit is bought complete.
+The prototype is one Kitewright Core: a 240 x 150 mm carbon fibre plate with the avionics on top under a printed lid, and the payload rail and two locking pins underneath, plus one payload shoe. Figure 1 shows its 18 components in the order you make or fit them. Nine are made in a small workshop: the core plate (cut by a carbon plate service from the sketch), the rail spacer bars, front stops, rail lips, pin blocks, payload shoe, lid, damping plate and strain-relief bar. Everything else is bought and fitted: the flight controller, GNSS receiver, power board and modules, radios, antennas, the DS-014 pigtail, the locking pins (indexing plungers), dampers, standoffs and bonded inserts. The four heavy power leads and their AS150 plugs are not part of the core: each frame brings them in its own harness and solders them to the power board's pads. The work is sawing, drilling, milling, tapping and filing aluminium bar, bonding inserts into carbon plate, one 3D print and cutting glass-epoxy sheet. The parts cost about USD 1,764 for the airborne core from the bill of materials; the ground station kit is bought complete.
 
-> **Safety:** The finished core switches lithium pack power of up to 60 V and 200 A. Until section 6 says otherwise, power it only from a current-limited bench supply, never from a pack. Soldering 8 AWG leads needs a 100 W iron or better and gets the wire hot enough to burn: hold it with pliers. Cut aluminium edges and glass-epoxy dust are hazards: deburr every edge, wear gloves and a dust mask, and cut G10 wet or under extraction. Printing ASA gives off fumes; print in a ventilated space.
+> **Safety:** The finished core switches lithium pack power of up to 60 V and 200 A. Until section 6 says otherwise, power it only from a current-limited bench supply, never from a pack. Soldering the frame's 8 AWG leads to the board needs a 100 W iron or better and gets the wire hot enough to burn: hold it with pliers. Cut aluminium edges, carbon dust and glass-epoxy dust are hazards: deburr every edge, wear gloves and a dust mask, drill carbon and cut G10 wet or under extraction, and seal cut carbon edges. Printing ASA gives off fumes; print in a ventilated space.
 
 ## 2. What changed to make it buildable
 
-The scaffold described the core in words; to build it, each part needed a shape, a material and a fixing. Each change below keeps what the core does and is recorded in decision record KWC-DDR-002.
+The scaffold described the core in words; to build it, each part needed a shape, a material and a fixing. Each change below keeps what the core does and is recorded in decision record KWC-DDR-002. The last four rows are the lightening Amish chose for the core's mass (KWC-DDR-003).
 
 *Table 1. Changes from the concept.*
 
@@ -41,10 +45,14 @@ The scaffold described the core in words; to build it, each part needed a shape,
 | Locking pin | "A locking pin" | Two spring plungers in blocks under the lips (Figure 13) | Either pin alone holds the payload |
 | End of travel | None | Two front stops between plate and lip (Figure 14) | Lines the pins up with their holes |
 | Payload connector | A connector on the mount | A pigtail through a slot in the plate and a notch in the shoe (Figure 20) | A sliding shoe cannot mate a 40-pin plug reliably |
-| Fixings under the plate | Not shown | Clinch nuts pressed in flush from below (Figure 22) | The shoe slides just under the plate |
+| Fixings under the plate | Not shown | M3 inserts bonded into the plate, flush underneath (Figure 22) | The shoe slides just under the plate; clinch nuts cannot be pressed into carbon |
 | Core to frame | "Bolts into any frame" | Hangs under the deck on four bolts and spacers (Figure 27) | Payload load goes straight into the frame |
 | Flight controller | Not shown | On four dampers and a glass-epoxy plate above the power board (Figure 17) | Vibration isolation |
 | Lid | "Cold-rated enclosure" | Printed lid with flange, gasket and six screws | Clears the stop nuts and the deck opening |
+| Core plate | 2 mm aluminium sheet | 2 mm carbon fibre plate | 81 g lighter (R9) |
+| Lid walls | 2 mm | 1.5 mm | 24 g lighter (R9) |
+| Rail bars | Plain bar | Windows through the spacer bars and pockets under the lips, between the screw holes | 52 g lighter (R9); every strength factor stays above 5 |
+| Power leads | Four 8 AWG leads with AS150 plugs in the core | In each frame's harness, soldered to the board's pads and tied to a strain-relief bar behind the lid (Figure 24) | 121 g off the core (R9); lead lengths differ for each frame anyway |
 
 ## 3. Making the components
 
@@ -56,19 +64,19 @@ Sizes are in millimetres. Positions are given from the centre of the core plate:
 
 *Figure 2. Making sketch KWC-DWG-101.*
 
-**What it is and what it is made from.** The flat plate everything fixes to: 240 x 150 mm, cut from 2 mm 5052-H32 aluminium sheet.
+**What it is and what it is made from.** The flat plate everything fixes to: 240 x 150 mm of 2 mm quasi-isotropic carbon fibre plate. Have a carbon plate service cut the outline, holes and slot from the sketch by waterjet or CNC; if you drill it yourself, drill wet with a sharp carbide drill on a backing board, and wear a dust mask.
 
 **How to make it.**
 
 1. Cut the blank 240 x 150 mm and mark a centre line each way.
 2. Drill the four frame holes 4.5 mm, 110 mm along each way from the centre and 65 mm across each way.
 3. Drill the rail holes 4.5 mm on two lines 70 mm each side of the centre line, at 93 mm and 75 mm behind the centre, 30 mm behind, 30 mm ahead and 90 mm ahead. Drill the two stop holes 4.5 mm at 95 mm ahead, 55 mm each side.
-4. Drill the 14 clinch nut holes 4.22 mm: six for the lid flange (60 mm behind, on the centre, 60 mm ahead; 50 mm each side), four for the tall standoffs (75 mm behind and 25 mm ahead; 30 mm each side) and four for the short standoffs (66 mm behind and 6 mm ahead; 21 mm each side).
-5. Cut the cable slot, 12 mm long and 24 mm wide, from 70 to 82 mm ahead of the centre: drill 6 mm holes in its corners, cut between them and file square.
-6. Deburr every hole and edge.
-7. Press an M3 clinch nut into each 4.22 mm hole **from the underside**, in a vice between two flat steel plates, until its head is flush.
+4. Drill the 16 insert holes 4.22 mm: six for the lid flange (60 mm behind, on the centre, 60 mm ahead; 50 mm each side), four for the tall standoffs (75 mm behind and 25 mm ahead; 30 mm each side), four for the short standoffs (66 mm behind and 6 mm ahead; 21 mm each side) and two for the strain-relief bar posts (95 mm behind, 28 mm each side).
+5. Cut the cable slot, 12 mm long and 24 mm wide, from 70 to 82 mm ahead of the centre.
+6. Seal every cut edge and hole with a thin coat of epoxy.
+7. Bond an M3 flush insert into each 4.22 mm hole with structural epoxy, flange on the top face, body flush with the underside; wipe off any epoxy underneath and let it cure on a flat sheet with release film.
 
-**How it fits the parts next to it.** The rails bolt to its underside (Figure 11), the lid and standoffs screw into its clinch nuts from above (Figures 17 and 22), and it hangs from the frame on its four corner holes (Figure 27).
+**How it fits the parts next to it.** The rails bolt to its underside (Figure 11), the lid, standoffs and strain-relief posts screw into its inserts from above (Figures 17 and 22), and it hangs from the frame on its four corner holes (Figure 27).
 
 **Check before moving on.** Lay a straight edge across the underside in several directions: nothing stands proud, because the shoe slides 0.3 mm below.
 
@@ -78,13 +86,14 @@ Sizes are in millimetres. Positions are given from the centre of the core plate:
 
 *Figure 3. Making sketch KWC-DWG-102.*
 
-**What it is and what it is made from.** The bar that sets the gap between plate and lip: 10 x 6 mm 6061-T6 flat bar, 200 mm long.
+**What it is and what it is made from.** The bar that sets the gap between plate and lip: 10 x 6 mm 6061-T6 flat bar, 200 mm long, with three lightening windows.
 
 **How to make it.**
 
 1. Saw two pieces 200 mm long and square the ends.
 2. Mark a centre line along the 10 mm face and drill five 4.5 mm holes on it at 7, 25, 70, 130 and 190 mm from the rear end.
-3. Deburr.
+3. Mill three windows 6 mm wide straight through the 6 mm height, centred on the 10 mm face so 1.5 mm walls remain each side: from 31.5 to 63.5 mm, 76.5 to 123.5 mm and 136.5 to 183.5 mm from the rear end. That leaves at least 4.25 mm of solid bar round every hole.
+4. Deburr.
 
 **How it fits the parts next to it.** Its 10 mm face lies against the underside of the plate with its outer edge on the plate's long edge; the lip lies under it (Figure 11). The screws pass through all three.
 
@@ -121,7 +130,8 @@ Sizes are in millimetres. Positions are given from the centre of the core plate:
 2. Drill the five screw holes 4.5 mm on a line 5 mm from the outer edge, at 7, 25, 70, 130 and 190 mm from the rear end, and the stop hole 4.5 mm at 195 mm, 20 mm from the outer edge.
 3. Drill the pin hole 5.5 mm, 16 mm from the rear end and 20 mm from the outer edge.
 4. Countersink the screw and stop holes 90° from the underside, deep enough that an M4 countersunk head sits flush. The left and right lips are mirror images: lay them side by side, outer edges outward, before countersinking.
-5. Stick UHMW-PE tape on the top face from the inner edge to 1 mm short of the spacer bar's line, from the rear end to the front stop. Cut out the pin hole with a sharp knife.
+5. Mill three pockets 2 mm deep in the underside, from 1.5 to 18.5 mm in from the inner edge, at the same positions along the bar as the spacer bar windows (31.5 to 63.5, 76.5 to 123.5 and 136.5 to 183.5 mm from the rear end). The pockets stop 1.5 mm short of the spacer bar's line, so the lip keeps its full 3 mm where it bends.
+6. Stick UHMW-PE tape on the top face from the inner edge to 1 mm short of the spacer bar's line, from the rear end to the front stop. Cut out the pin hole with a sharp knife.
 
 **How it fits the parts next to it.** The tape faces up toward the plate. The shoe's edge overlaps the lip by 19 mm and rides on the tape, with 0.3 mm between the shoe and the plate (Figure 11).
 
@@ -171,16 +181,16 @@ Sizes are in millimetres. Positions are given from the centre of the core plate:
 
 *Figure 8. Making sketch KWC-DWG-107.*
 
-**What it is and what it is made from.** The cover over the avionics, printed in light grey ASA: 168 x 92 x 62 mm outside with 2 mm walls and a 180 x 108 x 3 mm flange.
+**What it is and what it is made from.** The cover over the avionics, printed in light grey ASA: 168 x 92 x 62 mm outside with 1.5 mm walls and top and a 180 x 108 x 3 mm flange.
 
 **How to make it.**
 
-1. Print it open side down on the flange, 0.2 mm layers, four walls, 25 % infill, supports only under the rear grommet holes and the service opening.
+1. Print it open side down on the flange, 0.2 mm layers, three 0.5 mm walls (1.5 mm), 25 % infill, supports only under the rear grommet holes and the service opening.
 2. Check the six 3.4 mm flange holes, the 10.2 mm mast socket (12 mm deep in the 22 mm boss, 55 mm behind the centre), the 6 mm GNSS cable hole beside it, the three 6.5 mm antenna holes and the 12.2 mm switch hole in the top, and the two 20 mm grommet holes (13 mm each side, 17 mm up) and the 12 x 7 mm service opening in the rear wall. Clear them with a drill of the same size.
 3. Melt an M3 heat-set insert into the side of the mast boss for the thumbscrew.
 4. Cut the 1 mm foam gasket to the flange outline, with six 6 mm holes at the screws.
 
-**How it fits the parts next to it.** The lid stands on the gasket on the plate and six M3 cap screws pass through its flange into the clinch nuts (Figure 22). It rises through the frame deck's opening.
+**How it fits the parts next to it.** The lid stands on the gasket on the plate and six M3 cap screws pass through its flange into the bonded inserts (Figure 22). It rises through the frame deck's opening.
 
 **Check before moving on.** The lid sits flat on its gasket with no rock, and the flight controller, once fitted, clears its top by at least 5 mm.
 
@@ -202,7 +212,20 @@ Sizes are in millimetres. Positions are given from the centre of the core plate:
 
 **Check before moving on.** It hangs level on the dampers and touches nothing else.
 
-### 3.9 Bought components
+### 3.9 Strain-relief bar
+
+**What it is and what it is made from.** A G10 strip 64 x 6 x 3 mm on two 11 mm M3 aluminium standoffs, behind the lid at the rear of the plate. The frame's four power leads are tied down to it with cable ties, so a pull on a lead never reaches the solder pads.
+
+**How to make it.**
+
+1. Cut the strip from the offcut of the damping plate sheet (wet or under extraction) and file the edges.
+2. Drill two 3.4 mm holes on its centre line, 28 mm each side of the middle (56 mm apart).
+
+**How it fits the parts next to it.** The two standoffs screw into the bonded inserts 95 mm behind the centre, 28 mm each side; the strip sits on them with two M3 screws, 14 mm above the plate, between the lid flange and the frame deck's opening edge (Figure 24).
+
+**Check before moving on.** The strip is level and clears the lid flange by at least 2 mm.
+
+### 3.10 Bought components
 
 *Table 2. Bought components and what to do to them.*
 
@@ -210,14 +233,13 @@ Sizes are in millimetres. Positions are given from the centre of the core plate:
 | --- | --- | --- |
 | Corner spacers (4) | Aluminium round spacers 16 mm OD x 8 mm, M4 clearance | Nothing |
 | Locking pins (2) | Stainless indexing plungers, M10 x 1, 5 mm hardened pin, at least 9 mm stroke, pull knob with a rest (lock-out) position, with jam nuts | Paint a red band round each pin just below the lip when the pin is withdrawn, so a withdrawn pin shows red |
-| Clinch nuts (14) | Self-clinching M3 nuts for 2 mm aluminium, stainless | Press into the plate (3.1) |
+| Bonded inserts (16) | Aluminium flanged M3 inserts for a 4.2 mm hole in 2 mm composite plate | Bond into the plate (3.1) |
 | Standoffs (8) | M3 male-female aluminium: four 25 mm, four 8 mm | Nothing |
 | Dampers (4) | Silicone grommet dampers for M3, about 10 mm tall, rated -40 °C | Choose hardness for the controller's mass |
 | Flight controller | Pixhawk FMUv6X class with standard baseboard | Load released PX4 and the Kitewright parameter set |
 | GNSS receiver and mast | Multi-band GNSS with compass; 10 mm OD carbon tube, 150 mm; M3 thumbscrew | Fix the receiver to the tube's top with its own mount |
 | Power distribution board | 18 to 60 V, 200 A peak, two inputs, two outputs, Hall current sensor, about 80 x 50 mm | Nothing |
 | Power modules | Digital power monitor with 5.3 V supply, backup 5.3 V supply, payload switch (60 V, 8 A) | Nothing |
-| Leads and connectors | 8 AWG silicone wire, four AS150 halves | Cut four lead pairs about 100 mm long |
 | Telemetry radio, receiver, antennas | 900 MHz class radio pair, long-range control link receiver, three antennas and SMA bulkhead pigtails | Set the band and power for the country of use |
 | DS-014 pigtail | 40-pin connector pair per DS-014, 0.3 m pigtail, cable clamp | Wire to the controller and payload switch per the pin table |
 | Safety switch, grommets, harness, gasket sheet, fasteners | As in `bom/bom.csv` | Nothing |
@@ -248,17 +270,17 @@ Fit each pin block under its lip at the rear with two M4 x 35 cap screws up thro
 
 *Figure 14. A front stop, clamped between plate and lip by the stop screw.*
 
-### Step 3: power board and its leads
+### Step 3: power board
 
 ![Figure 15. Step 3](05-build-plan/step-03.png)
 
-Turn the plate the right way up. Screw the four 8 mm standoffs into their clinch nuts and fix the power board on them with M3 screws. Solder the four lead pairs (two pack inputs, two frame outputs) to the board's pads, with no plugs on the far ends yet.
+Turn the plate the right way up. Screw the four 8 mm standoffs into their inserts and fix the power board on them with M3 screws. Leave its four power pads (two pack inputs, two frame outputs) bare and tinned: the frame's harness leads are soldered to them in step 9.
 
 ### Step 4: flight controller on its dampers
 
 ![Figure 16. Step 4](05-build-plan/step-04.png)
 
-Screw the four 25 mm standoffs into their clinch nuts, fit a damper on each, lay the damping plate on the dampers and fix it with M3 screws into the dampers. Fix the flight controller to the plate with M3 nylon screws, arrow forward.
+Screw the four 25 mm standoffs into their inserts, fit a damper on each, lay the damping plate on the dampers and fix it with M3 screws into the dampers. Fix the flight controller to the plate with M3 nylon screws, arrow forward.
 
 ![Figure 17. Joint 5](05-build-plan/joint-05.png)
 
@@ -284,11 +306,11 @@ Pass the pigtail's plug down through the cable slot from above and clamp the cab
 
 ![Figure 21. Step 7](05-build-plan/step-07.png)
 
-Stick the gasket to the plate around the avionics. Fit the two grommets to the lid's rear wall and thread the four leads out through them, two leads per grommet. Lower the lid onto the gasket and fit six M3 x 8 cap screws through the flange into the clinch nuts, snug but not crushing the gasket.
+Stick the gasket to the plate around the avionics. Fit the two grommets to the lid's rear wall. Lower the lid onto the gasket and fit six M3 x 8 cap screws through the flange into the bonded inserts, snug but not crushing the gasket.
 
 ![Figure 22. Joint 6](05-build-plan/joint-06.png)
 
-*Figure 22. Lid flange to plate: screw, gasket and the flush clinch nut.*
+*Figure 22. Lid flange to plate: screw, gasket and the bonded insert, flush underneath.*
 
 ### Step 8: antennas, GNSS mast and receiver
 
@@ -296,11 +318,11 @@ Stick the gasket to the plate around the avionics. Fit the two grommets to the l
 
 Fit the three SMA bulkheads through the lid top and screw on the antennas. Press the safety switch into its hole. Push the mast into its socket, lock it with the thumbscrew, and run the GNSS cable in through the hole beside the boss.
 
-### Step 9: AS150 plugs on the leads
+### Step 9: strain-relief bar; the frame's harness leads
 
 ![Figure 24. Step 9](05-build-plan/step-09.png)
 
-Solder an AS150 half to each lead pair, inputs and outputs of opposite gender so a pack cannot be plugged into an output, and heat-shrink them. Mark each lead "PACK 1", "PACK 2", "FRAME A", "FRAME B".
+Screw the two 11 mm standoffs into their inserts behind the lid and fix the strip on them. The core is now complete; it carries no power leads of its own. When it goes into a frame, take the lid off, pass that frame's four harness leads (two pack inputs, two frame outputs, made and plugged to the frame's own build plan, with input and output plugs of opposite gender) in through the rear grommets, two per grommet, and solder each to its marked pad on the power board. Refit the lid, then tie each lead to the strip with a cable tie. **Hold point:** check the polarity of every lead at its plug with a meter before step 11.
 
 ### Step 10: payload shoe in from the rear (payload swap)
 
@@ -312,7 +334,7 @@ Pull both plunger knobs down and twist them to their rest. Slide the shoe into t
 
 ![Figure 26. Step 11](05-build-plan/step-11.png)
 
-Put a corner spacer on each frame hole of the plate, lift the core so the lid passes up through the frame deck's opening, and fit four M4 bolts down through deck, spacers and plate with nylon-insert nuts underneath. Plug the frame's speed controller leads into the two frame outputs.
+Put a corner spacer on each frame hole of the plate, lift the core so the lid passes up through the frame deck's opening, and fit four M4 bolts down through deck, spacers and plate with nylon-insert nuts underneath. Plug the frame's speed controller wiring into the two frame output leads of its harness.
 
 ![Figure 27. Joint 7](05-build-plan/joint-07.png)
 
@@ -333,22 +355,22 @@ Put a corner spacer on each frame hole of the plate, lift the core so the lid pa
 | Cold boot | R5 | Soak the core at -20 °C for 2 h, then power from the bench supply | Boots and logs normally |
 | Interface | R1, R8 | DS-014 continuity and a MAVLink payload heartbeat with a reference payload | Every pin in the table connected; payload recognised |
 | Firmware | R10 | Load the released PX4 build and the parameter set | No source changes; parameters load |
-| Mass | R9 | Weigh the core without the shoe and packs | Recorded against R9 |
+| Mass | R9 | Weigh the core without the shoe, packs and frame harness leads | 1.0 kg or less (estimate 0.996 kg, a 4 g margin) |
 
 ## 6. Safety stops
 
 Work stops at each point below until what it says is true.
 
 1. **Before first power.** Every solder joint inspected; no pack anywhere near the bench; the power board's inputs checked for shorts with a meter; the bench supply set to 24 V and 1 A.
-2. **Before connecting a pack.** The bench checks of section 5 passed; inputs and outputs keyed by opposite-gender AS150 plugs and labelled; polarity checked at the plug with a meter; the pack warm enough to discharge (ColdCell reports at least 10 °C); a lithium fire plan, sand bucket and extinguisher at hand; the core on a non-flammable surface; nobody alone.
+2. **Before connecting a pack.** The bench checks of section 5 passed; the frame harness leads soldered and tied to the strain-relief bar, inputs and outputs keyed by opposite-gender AS150 plugs and labelled; polarity checked at the plug with a meter; the pack warm enough to discharge (ColdCell reports at least 10 °C); a lithium fire plan, sand bucket and extinguisher at hand; the core on a non-flammable surface; nobody alone.
 3. **Before loading the mount.** Both pins show no red band and the shoe passes the tug test; the core is held on a fixed stand, not in a frame; nobody under the load.
 4. **Before fitting propellers or arming any frame.** That frame's own build plan safety stops apply; the core's safety switch works; failsafes for the altitude band are loaded.
 5. **Before any flight with a payload.** Pin check and tug test done by a second person; the flight follows local rules and the site partner's permissions.
 
 ## 7. Tools, skills and workspace
 
-- Hacksaw or bandsaw, files, deburring tool, square and scriber; pillar drill with 3.2, 3.4, 4.2 (or 4.22), 4.5, 5.5, 6 and 9.0 mm drills; 90° countersink; M10 x 1 tap and wrench.
-- Bench vice with two flat steel plates for the clinch nuts.
+- Hacksaw or bandsaw, files, deburring tool, square and scriber; pillar drill with 3.2, 3.4, 4.2 (or 4.22), 4.5, 5.5 and 9.0 mm drills, carbide for the carbon plate; 90° countersink; M10 x 1 tap and wrench; a small mill or a drill press with an X-Y table and a 6 mm end mill for the rail windows and pockets.
+- Structural epoxy, release film and a flat sheet for bonding the inserts.
 - FDM printer that can print ASA (enclosure, heated bed); heat-set insert tip.
 - Temperature-controlled soldering station of 100 W or more for 8 AWG; heat-shrink and heat gun; crimp tools for JST-GH.
 - Multimeter, current-limited bench supply (at least 60 V, 5 A), feeler gauges, kitchen scale.
@@ -357,8 +379,8 @@ Work stops at each point below until what it says is true.
 
 ## 8. Where the numbers come from
 
-- `cad/src/model.py`: every size and position, and the 614 constructability checks.
+- `cad/src/model.py`: every size and position, and the 646 constructability checks.
 - `cad/drawings/KWC-DWG-001`: general arrangement; `KWC-DWG-101` to `108`: the making sketches.
 - `docs/04-calcs/01-sizing.md` and `sizing.py` (KWC-CAL-001): loads, swap time, power, heat, altitude, mass and cost.
 - `bom/bom.csv`: parts, specifications and prices.
-- `docs/decisions/0001-trl2-review-decisions.md` and `0002-design-for-construction.md`.
+- `docs/decisions/0001-trl2-review-decisions.md`, `0002-design-for-construction.md` and `0003-requirement-decisions-round2.md`.

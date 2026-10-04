@@ -1,5 +1,66 @@
 # Review note: Kitewright Core
 
+## Session 2026-10-03: round 2 requirement decisions applied
+
+Amish, 2026-10-03: "i approve all of the 47 recommendations provided by you. Execute them." For this repo that is decision O1 (global decision 17, R9 core mass), decided as recommended: option B. Recorded in `docs/decisions/0003-requirement-decisions-round2.md` (KWC-DDR-003). Work stayed inside the TRL 3 cap: no test articles, test plans, firmware, PCB layouts, build-log entries or purchasing lists.
+
+### What was done
+
+- `cad/src/model.py`: core plate changed to 2 mm carbon fibre; three windows milled through each rail spacer bar (1.5 mm walls) and three 2 mm pockets under each lip, with at least 4.25 mm of bar round every hole; lid walls and top 1.5 mm; the four power leads and AS150 plugs removed from the core; a G10 strain-relief bar on two 11 mm posts added behind the lid; clinch nut holes now take 16 bonded flush inserts (14 plus 2 for the bar posts); the frame's harness leads drawn as context (`harness_context`) and checked to reach the board pads, grommets and bar. 646 constructability checks pass (was 614).
+- `docs/04-calcs/sizing.py`, `results.csv` and `01-sizing.md` (KWC-CAL-001 v0.2): sections A, C and H recalculated; new lines [A8] (frame bolt bearing in carbon) and [C3] (bus top voltage).
+- `bom/bom.csv`: lines 1, 3, 4, 10, 20 and 21 changed (carbon plate, pocketed bars, lid, bonded inserts, strain-relief bar in place of the leads).
+- Regenerated: `cad/step/kitewright-core-assembly.step` and the five STL files; `cad/drawings/KWC-DWG-001` Rev P2; making sketches KWC-DWG-101 to 108, overview, joints and steps in `docs/05-build-plan/`; concept media (`media/hero.png`, `cutaway.png`, `exploded.png`, `flow.png`, `concept-blueprint.png` and `.pdf`, `model.glb` at 1.0 mm linear and 0.35 rad angular deflection).
+- `docs/05-build-plan.md` (KWC-BLD-001 v0.2), `docs/03-requirements.md` (KWC-REQ-001 v0.3), `docs/02-concept.md` (KWC-PRC-001 v0.3), `docs/06-design-decisions.md` (KWC-DEC-001 v0.2), `README.md`, `cad/src/product_model.py` (carbon plate colour, bar in place of leads), `cad/src/concept_media.py` and `cad/src/sheets.py`, `project.yaml` (trl_evidence).
+
+### Requirement status
+
+| ID | Before | After |
+| --- | --- | --- |
+| R3 | Met on paper, lowest factor 10.8 | Met on paper, lowest factor 6.8 (side beam at a pocket; lip 13, screws 69, pin 36) |
+| R9 | Not met, 1.27 kg | **Met on paper, 0.996 kg** (4 g margin; weigh at TRL 4) |
+| All others | Met on paper or by design | Unchanged |
+
+### Cost
+
+Value-engineering target: USD 5,000. Estimated cost of the constructable design: USD 3,944.40 (USD 1,055.60 under the target); before: USD 3,940.60. The core gained USD 59.80 (carbon plate USD 44 more, rail pockets USD 12, bonded inserts USD 4.80, lid USD 1 less) and lost USD 56 net of leads and plugs, which now cost USD 60 in each frame's harness (Kitewright Lift BOM).
+
+### Cross-repo changes
+
+- **Kitewright Lift** (edited in the same round, KWL-DDR-003): its harness gains the two pack input and two frame output leads, 8 AWG with AS150 plugs (USD 60, 124 g), soldered to the core's pads and tied to the strain-relief bar; its Core allowance is now 1.0 kg without leads.
+- **Kitewright Range** (not edited in this round): it must also supply its own four leads; its BOM and harness need the same lines when it is next worked on.
+- **ColdCell** (edited in the same round, CCL-DDR-003): the new lithium-ion 14S3P variant for Lift reports over DroneCAN and connects through the frame's AS150 pack leads like the reference pack.
+
+### New questions (Proposed, awaiting Amish)
+
+**O2. Bus headroom for the 14S lithium-ion pack.**
+- State: Kitewright Lift adopted a 14S lithium-ion ColdCell variant (its decision 2). A full pack reads 58.8 V (a full 16S LiFePO4 pack 58.4 V). The power board and both power modules are rated 60 V, leaving 1.2 V for the short rise in bus voltage when eight motor controllers brake.
+- Option A: specify the power board and power modules for a 75 V class rating; estimate about USD 40 more; mass unchanged at catalogue class.
+- Option B: keep 60 V parts and charge the Lift packs only to 4.10 V a cell (57.4 V); about 3 % less energy, about 0.6 min less hover for Lift.
+- Option C: keep 60 V parts and full charge, relying on the controllers' braking limits.
+- **Recommendation: A.** It restores about 16 V of margin with no loss of hover time for a small cost.
+
+**To confirm when parts are bought (T10, added to KWC-DEC-001):** the bonded flush insert type, its bond strength in 2 mm carbon plate and the epoxy's rating from -20 to +45 °C.
+
+### Safety notes
+
+- The core still switches up to 60 V and 200 A. The pack and frame leads now arrive with each frame's harness; polarity and the opposite-gender keying of inputs and outputs are checked at a new hold point when the harness is soldered in (build plan step 9), before any pack is connected.
+- Lithium-ion fire energy: Kitewright Lift now flies two 14S3P lithium-ion ColdCell packs (about 680 Wh each), which carry more stored energy and a more violent failure than LiFePO4. The core's role is unchanged (it does not charge packs and passes ColdCell's temperature data to the autopilot), but the lithium fire plan in safety stop 2 applies with more force; see ColdCell CCL-DDR-003 for the pack's own protections.
+- Carbon dust from cutting or drilling the plate is a breathing hazard and is conductive: work wet or under extraction and seal every cut edge so no fibre can bridge the power board.
+- The bus top voltage (O2) is a margin question for transients, not a hazard at steady state; until O2 is decided, first power stays on the current-limited bench supply as the build plan says.
+
+### Re-render
+
+The hero geometry is the same size and layout, but the plate changes from bare aluminium to black carbon and the four red leads with yellow plugs no longer hang out of the rear of the lid. Both are visible in `media/render-hero.png`, so the photoreal hero, exploded and detail renders and the cards should be re-rendered on Amish's Mac.
+
+### Checks
+
+- `python cad/src/model.py --check`: 646 passed, 0 failed.
+- `python .kit/render.py --check`: see the end of this session's report; the only failure left is the missing `media/render-hero.png` storefront image of this working copy.
+
+### Recommended next step
+
+Amish decides O2. The design is then ready for TRL 4 (build and the bench checks of section 5 of the build plan) once the DS-014 licence and pinout are confirmed; that is a recommendation, not started.
+
 ## Session 2026-09-30: scaffolded
 
 ### What was done

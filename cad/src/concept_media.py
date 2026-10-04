@@ -60,7 +60,7 @@ NAMES = {1: "Core plate", 2: "Corner spacers (4)", 3: "Rail spacer bars (2)", 4:
          6: "Front stops (2)", 7: "Pin blocks (2)", 8: "Locking pins (2)", 9: "Payload shoe", 10: "Lid",
          11: "Lid gasket", 12: "Damping plate", 13: "Vibration dampers (4)", 14: "Standoffs (8)",
          15: "Flight controller", 16: "GNSS receiver and compass", 17: "GNSS mast", 18: "Power distribution board",
-         19: "Power modules", 21: "Power leads and AS150 plugs", 22: "Telemetry radio", 23: "Control link receiver",
+         19: "Power modules", 21: "Strain-relief bar", 22: "Telemetry radio", 23: "Control link receiver",
          24: "Antennas", 25: "DS-014 pigtail and plug", 26: "Safety switch", 27: "Grommets (2)"}
 
 
@@ -98,12 +98,12 @@ if __name__ == "__main__":
         key_figures=["Core plate 240 x 150 mm; bolts to the frame on a 220 x 130 mm M4 pattern",
                      "Lid 168 x 92 x 62 mm, rises through a 200 x 112 mm opening in the frame deck",
                      "Plain rail and two locking pins; payload shoe 184 x 128 x 5 mm",
-                     "Rated payload 5 kg; vertical design load 147 N, lips 99 x, screws 69 x",
+                     "Rated payload 5 kg; vertical design load 147 N, lips 13 x, screws 69 x",
                      "DS-014 40-pin pigtail; 100 W to the payload, 8 A switch",
-                     "Bus 18 to 60 V; core about 1.27 kg; USD 3,941 with ground station",
+                     "Bus 18 to 60 V; core about 1.00 kg; USD 3,944 with ground station",
                      "Hover time at 5,000 m, -20 C: 47 % cold packs, 70 % ColdCell (est.)"],
         scale_figure=False, context=[hand()],
-        cut_exclude=("Antennas", "GNSS mast", "GNSS receiver and compass", "Power leads and AS150 plugs"),
+        cut_exclude=("Antennas", "GNSS mast", "GNSS receiver and compass"),
         flow={"title": "power flow in Lift hover at sea level, W (KWC-CAL-001 estimates)", "unit": "W",
               "stages": [("Two ColdCell packs", 4414.0), ("Core power board", 4410.0), ("Frame ESCs and motors", 4300.0)],
               "losses": [(0, "Bus conduction", 4.0), (1, "Payload via DS-014 (max)", 100.0), (1, "Avionics", 10.0)]},
